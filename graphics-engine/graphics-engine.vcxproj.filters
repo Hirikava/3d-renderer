@@ -48,5 +48,16 @@
     <ClCompile Include="..\deps\imgui\backends\imgui_impl_opengl3.cpp">
       <Filter>Исходные файлы\imgui-backends</Filter>
     </ClCompile>
+    <ClCompile Include="importers\assimp_model_importer.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="importers\model_importer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="importers\assimp_model_importer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

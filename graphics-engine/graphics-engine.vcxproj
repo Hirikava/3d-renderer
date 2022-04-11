@@ -79,13 +79,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>.vs\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)deps\glad\$(Configuration)\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>.vs\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)deps\glad\$(Configuration)\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -130,9 +130,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\$(Configuration\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;assimp-msvc14.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)deps\assimp-build\bin\$(Configuration)\assimp-msvc14.dll $(TargetDir)assimp-msvc14.dll  /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -152,9 +155,12 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\$(Configuration\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;assimp-msvc14.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)deps\assimp-build\bin\$(Configuration)\assimp-msvc14.dll $(TargetDir)assimp-msvc14.dll  /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\deps\imgui\backends\imgui_impl_glfw.cpp" />
@@ -164,8 +170,13 @@
     <ClCompile Include="..\deps\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\deps\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\deps\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="importers\assimp_model_importer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="importers\assimp_model_importer.h" />
+    <ClInclude Include="importers\model_importer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
