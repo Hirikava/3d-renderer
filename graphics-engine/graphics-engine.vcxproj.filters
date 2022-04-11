@@ -13,10 +13,40 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Исходные файлы\glad-backends">
+      <UniqueIdentifier>{c80c2d86-d2c4-4494-b441-d84703156f69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\imgui-backends">
+      <UniqueIdentifier>{e71e5b0c-1aa9-489d-a1bc-b1d983313460}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c">
+      <Filter>Исходные файлы\glad-backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\imgui\imgui.cpp">
+      <Filter>Исходные файлы\imgui-backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\imgui\imgui_demo.cpp">
+      <Filter>Исходные файлы\imgui-backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\imgui\imgui_draw.cpp">
+      <Filter>Исходные файлы\imgui-backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\imgui\imgui_tables.cpp">
+      <Filter>Исходные файлы\imgui-backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\imgui\imgui_widgets.cpp">
+      <Filter>Исходные файлы\imgui-backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\imgui\backends\imgui_impl_glfw.cpp">
+      <Filter>Исходные файлы\imgui-backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>Исходные файлы\imgui-backends</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -79,13 +79,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>.vs\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)deps\glad\$(Configuration)\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>.vs\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)deps\glad\$(Configuration)\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -157,8 +157,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\deps\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\deps\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\deps\imgui\imgui.cpp" />
+    <ClCompile Include="..\deps\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\deps\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\deps\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\deps\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c"/>
+    <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
