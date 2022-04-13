@@ -7,8 +7,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <importers/assimp_model_importer.h>
+
+
 int main(char* argc, char* argv[])
 {
+
+	dengine::AssimpModelImporter modelImporter;
+	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\123\\Survival_BackPack_2.fbx");
 
 	//Init GLFW
 	if (!glfwInit())
@@ -32,11 +38,10 @@ int main(char* argc, char* argv[])
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-
-	glClearColor(1.0f, 1.0f, 0.0f, 0.0f);
 	float color[3];
 	while(!glfwWindowShouldClose(window))
 	{
+		glClearColor(color[0], color[1], color[2], 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		//Start New ImGui frame

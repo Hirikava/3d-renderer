@@ -6,7 +6,7 @@
 namespace dengine{
 	class AssimpModelImporter : public IModelImporter {
 	public:
-		void Import(std::pmr::string path) override;
+		Model Import(std::pmr::string path) override;
 	};
 	
 }

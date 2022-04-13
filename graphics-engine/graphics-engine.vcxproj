@@ -79,14 +79,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>.vs\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(SolutionDir)deps\glm;$(SolutionDir)deps\assimp-build\include;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)deps\glad\$(Configuration)\src;$(SourcePath)</SourcePath>
+    <LibraryPath>$(SolutionDir)deps\assimp-build\bin\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>.vs\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(SolutionDir)deps\glm;$(SolutionDir)deps\assimp-build\include;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)deps\glad\$(Configuration)\src;$(SourcePath)</SourcePath>
+    <LibraryPath>$(SolutionDir)deps\assimp-build\bin\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -130,7 +132,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\$(Configuration\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;assimp-msvc14.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -155,7 +157,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\$(Configuration\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;assimp-msvc14.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
