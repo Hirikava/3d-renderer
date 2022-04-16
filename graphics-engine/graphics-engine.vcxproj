@@ -175,11 +175,17 @@
     <ClCompile Include="importers\assimp_model_importer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c" />
+    <ClCompile Include="rendering\global_environment.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importers\assimp_model_importer.h" />
     <ClInclude Include="importers\model_importer.h" />
+    <ClInclude Include="rendering\camera.hpp" />
     <ClInclude Include="rendering\rendering_tmp.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rendering\shaders\simple_3d.frag" />
+    <None Include="rendering\shaders\simple_3d.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

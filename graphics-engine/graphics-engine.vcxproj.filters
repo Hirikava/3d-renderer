@@ -16,6 +16,9 @@
     <Filter Include="rendering">
       <UniqueIdentifier>{890bfb24-56c5-466e-b9cc-0d307d7be97b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rendering\shaders">
+      <UniqueIdentifier>{48e45159-6b3b-420c-8907-a73f2794b562}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c">
@@ -46,6 +49,9 @@
       <Filter>importing</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="rendering\global_environment.hpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importers\assimp_model_importer.h">
@@ -57,5 +63,16 @@
     <ClInclude Include="rendering\rendering_tmp.hpp">
       <Filter>rendering</Filter>
     </ClInclude>
+    <ClInclude Include="rendering\camera.hpp">
+      <Filter>rendering</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rendering\shaders\simple_3d.vert">
+      <Filter>rendering\shaders</Filter>
+    </None>
+    <None Include="rendering\shaders\simple_3d.frag">
+      <Filter>rendering\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

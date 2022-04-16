@@ -2,23 +2,24 @@
 #define RENDERING_TMP_INCLUDED
 
 #include <map>
+#include <array>
 
 #include <glad/glad.h>
 #include <importers/model_importer.h>
+
 
 namespace dengine
 {
 	enum VertexDataType{
 		Positions = 0,
 		Normals = 1,
-		Tangents = 2,
-		UVs = 3,
+		UVs = 2,
 	};
 
 	struct VertexLayout {
-		unsigned int Stride;
-		unsigned int Offset;
-		unsigned int Size;
+		unsigned int Stride {0};
+		unsigned int Offset {0};
+		unsigned long long Size {0};
 	};
 
 	struct LoadedMaterial{
@@ -26,10 +27,24 @@ namespace dengine
 	};
 
 
-	struct BufferedMesh {
+	class BufferedMesh {
+	public:
+		BufferedMesh(unsigned Vbo, unsigned Ebo, unsigned MaterialIndex, unsigned long long numElemtns, const std::array<VertexLayout, 4>& vertexLayouts) :
+			Vbo(Vbo), Ebo(Ebo), MaterialIndex(MaterialIndex), vertexLayouts(vertexLayouts), NumElements(numElemtns)
+		{}
+
 		unsigned int Vbo;
 		unsigned int Ebo;
 		unsigned int MaterialIndex;
+		unsigned long long NumElements;
+
+		VertexLayout GetVertexAttributeLayout(VertexDataType vertexDataType) const
+		{
+			return vertexLayouts[vertexDataType];
+		}
+
+	private:
+		std::array<VertexLayout,4> vertexLayouts;
 	};
 
 
@@ -81,8 +96,8 @@ namespace dengine
 
 	OpenglModel loadModelToGpu(const dengine::Model& model)
 	{
-
 		std::pmr::vector<BufferedMesh> bufferedMeshes;
+		std::array<VertexLayout, 4> vertexLayouts;
 		for (const auto& mesh : model.Meshes)
 		{
 			unsigned int buffers[2];
@@ -95,20 +110,25 @@ namespace dengine
 			//load postions
 			unsigned int offset = 0;
 			glNamedBufferSubData(*vboPtr, offset, mesh.Positions.size() * sizeof(glm::vec3), &mesh.Positions[0]);
+			vertexLayouts[Positions] = VertexLayout{ sizeof(glm::vec3), offset, mesh.Positions.size() * sizeof(glm::vec3) };
 			offset += mesh.Positions.size() * sizeof(glm::vec3);
 			//load normals
 			glNamedBufferSubData(*vboPtr, offset, mesh.Normals.size() * sizeof(glm::vec3), &mesh.Normals[0]);
+			vertexLayouts[Normals] = VertexLayout{ sizeof(glm::vec3), offset, mesh.Normals.size() * sizeof(glm::vec3) };
 			offset += mesh.Normals.size() * sizeof(glm::vec3);
 			//load uvs
 			glNamedBufferSubData(*vboPtr, offset, mesh.UVs.size() * sizeof(glm::vec2), &mesh.UVs[0]);
+			vertexLayouts[UVs] = VertexLayout{ sizeof(glm::vec2), offset, mesh.UVs.size() * sizeof(glm::vec2) };
 			offset += mesh.UVs.size() * sizeof(glm::vec2);
 			//load elements
 			glNamedBufferData(*eboPtr, mesh.Indecies.size() * sizeof(unsigned), &mesh.Indecies[0], GL_STATIC_DRAW);
 			bufferedMeshes.push_back(BufferedMesh{
 				*vboPtr,
 				*eboPtr,
-				mesh.MaterialIndex
-				});
+				mesh.MaterialIndex,
+				mesh.Indecies.size(),
+				vertexLayouts
+			});
 		}
 
 		auto materials = loadMaterialsToGpu(model);
