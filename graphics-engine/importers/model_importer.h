@@ -14,26 +14,27 @@ namespace dengine
 
 	struct Texture{
 		TextureType TextureType;
-		unsigned int Width = 0;
-		unsigned int Height = 0;
-		std::pmr::vector<unsigned> Data;
+		int Width = 0;
+		int Height = 0;
+		std::pmr::vector<unsigned char> Data;
 	};
 
 	struct Mesh {
 		std::pmr::vector<glm::vec3> Positions;
 		std::pmr::vector<glm::vec3> Normals;
 		std::pmr::vector<glm::vec2> UVs;
-		unsigned int textureIndex;
+		std::pmr::vector<unsigned int> Indecies;
+		unsigned int MaterialIndex;
 	};
 
 	struct Material{
-		Texture DiffuseTexture;
-		Texture NormalTexture;
+		int DiffuseTextureIndex {-1};
 	};
 
 	struct Model{
 		std::pmr::vector<Mesh> Meshes;
 		std::pmr::vector<Material> Materials;
+		std::pmr::vector<Texture> Textures;
 	};
 
 

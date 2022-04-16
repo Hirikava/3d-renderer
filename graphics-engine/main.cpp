@@ -8,14 +8,11 @@
 #include <GLFW/glfw3.h>
 
 #include <importers/assimp_model_importer.h>
+#include <rendering/rendering_tmp.hpp>
 
 
 int main(char* argc, char* argv[])
 {
-
-	dengine::AssimpModelImporter modelImporter;
-	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\123\\Survival_BackPack_2.fbx");
-
 	//Init GLFW
 	if (!glfwInit())
 		return -1;
@@ -23,13 +20,24 @@ int main(char* argc, char* argv[])
 	//CreateWindow
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Diplom", nullptr, nullptr);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	GLFWwindow* window = glfwCreateWindow(1920, 1200, "Diplom", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
 		std::cout << "Failed to initialize OpenGL context" << std::endl;
 		return -1;
 	}
+
+
+	dengine::AssimpModelImporter modelImporter;
+	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\blossom_katana\\scene.gltf");
+
+	auto buffers = dengine::loadModelToGpu(model);
+	model.Materials.clear();
+	model.Meshes.clear();
+	model.Textures.clear();
+
 
 	//Init ImGui
 	IMGUI_CHECKVERSION();

@@ -1,63 +1,61 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Исходные файлы">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="importing">
+      <UniqueIdentifier>{eab18d9a-8ecf-4beb-b433-a3640cd4bcdf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="backends">
+      <UniqueIdentifier>{739904af-b851-45b7-b111-615602019b9e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы ресурсов">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Исходные файлы\glad-backends">
+    <Filter Include="backends\glad-backends">
       <UniqueIdentifier>{c80c2d86-d2c4-4494-b441-d84703156f69}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\imgui-backends">
+    <Filter Include="backends\imgui-backends">
       <UniqueIdentifier>{e71e5b0c-1aa9-489d-a1bc-b1d983313460}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rendering">
+      <UniqueIdentifier>{890bfb24-56c5-466e-b9cc-0d307d7be97b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c">
-      <Filter>Исходные файлы\glad-backends</Filter>
+      <Filter>backends\glad-backends</Filter>
     </ClCompile>
     <ClCompile Include="..\deps\imgui\imgui.cpp">
-      <Filter>Исходные файлы\imgui-backends</Filter>
+      <Filter>backends\imgui-backends</Filter>
     </ClCompile>
     <ClCompile Include="..\deps\imgui\imgui_demo.cpp">
-      <Filter>Исходные файлы\imgui-backends</Filter>
+      <Filter>backends\imgui-backends</Filter>
     </ClCompile>
     <ClCompile Include="..\deps\imgui\imgui_draw.cpp">
-      <Filter>Исходные файлы\imgui-backends</Filter>
+      <Filter>backends\imgui-backends</Filter>
     </ClCompile>
     <ClCompile Include="..\deps\imgui\imgui_tables.cpp">
-      <Filter>Исходные файлы\imgui-backends</Filter>
+      <Filter>backends\imgui-backends</Filter>
     </ClCompile>
     <ClCompile Include="..\deps\imgui\imgui_widgets.cpp">
-      <Filter>Исходные файлы\imgui-backends</Filter>
+      <Filter>backends\imgui-backends</Filter>
     </ClCompile>
     <ClCompile Include="..\deps\imgui\backends\imgui_impl_glfw.cpp">
-      <Filter>Исходные файлы\imgui-backends</Filter>
+      <Filter>backends\imgui-backends</Filter>
     </ClCompile>
     <ClCompile Include="..\deps\imgui\backends\imgui_impl_opengl3.cpp">
-      <Filter>Исходные файлы\imgui-backends</Filter>
+      <Filter>backends\imgui-backends</Filter>
     </ClCompile>
     <ClCompile Include="importers\assimp_model_importer.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>importing</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="importers\model_importer.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="importers\assimp_model_importer.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>importing</Filter>
+    </ClInclude>
+    <ClInclude Include="importers\model_importer.h">
+      <Filter>importing</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\rendering_tmp.hpp">
+      <Filter>rendering</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
