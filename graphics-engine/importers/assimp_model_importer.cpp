@@ -21,12 +21,12 @@ dengine::Texture loadTextureFromFile(const char* filePath)
 {
 	int width = 0, height = 0, numChannels = 0;
 	unsigned char* data = stbi_load(filePath, &width, &height, &numChannels, 4);
-	auto textureSizeInBytes = width * height * numChannels;
+	auto textureSizeInBytes = width * height * 4;
 	std::pmr::vector<unsigned char> textureData(textureSizeInBytes);
 	memcpy(&textureData[0], data, textureSizeInBytes);
 	stbi_image_free(data);
 	return dengine::Texture{
-		numChannels == 3 ? dengine::TextureType::RGB : dengine::TextureType::RGBA,
+		dengine::RGBA,
 		width,
 		height,
 		textureData,
@@ -37,17 +37,18 @@ dengine::Texture loadTextureFromMemmory(unsigned char* zipData, unsigned len)
 {
 	int width = 0, height = 0, numChannels = 0;
 	unsigned char* data = stbi_load_from_memory(zipData, len, &width, &height, &numChannels, 4);
-	auto textureSizeInBytes = width * height * numChannels;
+	auto textureSizeInBytes = width * height * 4;
 	std::pmr::vector<unsigned char> textureData(textureSizeInBytes);
 	memcpy(&textureData[0], data, textureSizeInBytes);
 	stbi_image_free(data);
 	return dengine::Texture{
-		numChannels == 3 ? dengine::TextureType::RGB : dengine::TextureType::RGBA,
+		dengine::RGBA,
 		width,
 		height,
 		textureData,
 	};
 }
+
 
 dengine::Mesh processMesh(const aiMesh* mesh,const  aiScene* scene)
 {
@@ -61,6 +62,7 @@ dengine::Mesh processMesh(const aiMesh* mesh,const  aiScene* scene)
 	memcpy(&normals[0], mesh->mNormals, cmpSize); //copy normals
 	for(int i = 0; i < mesh->mNumVertices; i++) //copy UVs
 		uvs[i] = glm::vec2(mesh->mTextureCoords[0]->x, mesh->mTextureCoords[0]->y);
+
 
 	//copy indecies
 	unsigned int indeciesSize = 0;

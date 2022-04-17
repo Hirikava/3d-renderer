@@ -43,7 +43,7 @@ MessageCallback(GLenum source,
 		type, severity, message);
 }
 
-float cameraSpeed = 0.05f;
+float cameraSpeed = 7.5f;
 float cameraRotationSpeed = 0.05f;
 void UpdateCamera(dengine::Camera& cam, float dTime)
 {
@@ -173,6 +173,9 @@ int main(char* argc, char* argv[])
 	glDeleteShader(fragmentShader);
 	glUniformBlockBinding(program, 0, 0);
 
+	glEnable(GL_DEPTH_TEST);
+
+
 
 
 
@@ -224,7 +227,7 @@ int main(char* argc, char* argv[])
 
 		//Start New ImGui frame
 		ImGui::ColorPicker3("color", color);
-		ImGui::DragFloat("CameraSpeed", &cameraSpeed);
+		ImGui::DragFloat("CameraSpeed", &cameraSpeed,1.0f,0,50);
 		ImGui::DragFloat("CameraRotationSpeed", &cameraRotationSpeed);
 
 		ImGui::End();

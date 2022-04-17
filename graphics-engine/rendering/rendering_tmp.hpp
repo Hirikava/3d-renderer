@@ -77,7 +77,7 @@ namespace dengine
 				glCreateTextures(GL_TEXTURE_2D, 1, &diffuseTexture);
 				glTextureStorage2D(diffuseTexture, 1, GL_RGBA8, textureToLoad.Width, textureToLoad.Height);
 
-				auto textureFormat = textureToLoad.TextureType == RGB ? GL_RGB : GL_RGBA;
+				auto textureFormat = GL_RGBA;
 				glTextureSubImage2D(diffuseTexture, 0, 0, 0, textureToLoad.Width, textureToLoad.Height, textureFormat, GL_UNSIGNED_BYTE, &textureToLoad.Data[0]);
 
 				glTextureParameteri(diffuseTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
