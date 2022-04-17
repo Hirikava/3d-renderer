@@ -172,8 +172,20 @@ int main(char* argc, char* argv[])
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 	glUniformBlockBinding(program, 0, 0);
-
 	glEnable(GL_DEPTH_TEST);
+
+	//CreateRenderBuffer
+	unsigned int fbo, depthTexture, colorAttachmentTexture;
+	glCreateFramebuffers(1, &fbo);
+	glCreateTextures(GL_TEXTURE_2D, 1, &depthTexture);
+	glCreateTextures(GL_TEXTURE_2D, 1, &colorAttachmentTexture);
+	glTextureStorage2D(depthTexture, 1, GL_DEPTH24_STENCIL8, 1920, 1080);
+	glTextureStorage2D(colorAttachmentTexture, 1, GL_RGBA8, 1920, 1080);
+	glNamedFramebufferTexture(fbo, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+	glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, colorAttachmentTexture, 0);
+
+	GLenum drawBuffs[1] = { GL_COLOR_ATTACHMENT0 };
+	glNamedFramebufferDrawBuffers(fbo,1,drawBuffs);
 
 
 
@@ -200,7 +212,8 @@ int main(char* argc, char* argv[])
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		glClearColor(color[0], color[1], color[2], 0.0f);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glClearColor(1, 0, 0, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 
@@ -222,6 +235,10 @@ int main(char* argc, char* argv[])
 			glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.ElementsCount, GL_UNSIGNED_INT, nullptr, 1);
 		}
 
+		//swap to default framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		ImGui::Begin("New world!");
 
@@ -229,7 +246,10 @@ int main(char* argc, char* argv[])
 		ImGui::ColorPicker3("color", color);
 		ImGui::DragFloat("CameraSpeed", &cameraSpeed,1.0f,0,50);
 		ImGui::DragFloat("CameraRotationSpeed", &cameraRotationSpeed);
+		ImGui::End();
 
+		ImGui::Begin("Viewport");
+		ImGui::Image((void*)(intptr_t)colorAttachmentTexture, ImVec2(1600, 1200));
 		ImGui::End();
 		//Render ImGui frame
 		ImGui::Render();
