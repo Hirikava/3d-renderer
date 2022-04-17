@@ -26,7 +26,7 @@ dengine::Texture loadTextureFromFile(const char* filePath)
 	memcpy(&textureData[0], data, textureSizeInBytes);
 	stbi_image_free(data);
 	return dengine::Texture{
-		dengine::RGBA,
+		numChannels == 3 ? dengine::TextureType::RGB : dengine::TextureType::RGBA,
 		width,
 		height,
 		textureData,
@@ -42,7 +42,7 @@ dengine::Texture loadTextureFromMemmory(unsigned char* zipData, unsigned len)
 	memcpy(&textureData[0], data, textureSizeInBytes);
 	stbi_image_free(data);
 	return dengine::Texture{
-		dengine::RGBA,
+		numChannels == 3 ? dengine::TextureType::RGB : dengine::TextureType::RGBA,
 		width,
 		height,
 		textureData,

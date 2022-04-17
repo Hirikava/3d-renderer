@@ -75,8 +75,10 @@ namespace dengine
 			{
 				auto& textureToLoad = model.Textures[material.DiffuseTextureIndex];
 				glCreateTextures(GL_TEXTURE_2D, 1, &diffuseTexture);
-				glTextureStorage2D(diffuseTexture, 1, GL_RGBA, textureToLoad.Width, textureToLoad.Height);
-				glTextureSubImage2D(diffuseTexture, 0, 0, 0, textureToLoad.Height, textureToLoad.Height, GL_RGBA, GL_UNSIGNED_BYTE, &textureToLoad.Data[0]);
+				glTextureStorage2D(diffuseTexture, 1, GL_RGBA8, textureToLoad.Width, textureToLoad.Height);
+
+				auto textureFormat = textureToLoad.TextureType == RGB ? GL_RGB : GL_RGBA;
+				glTextureSubImage2D(diffuseTexture, 0, 0, 0, textureToLoad.Width, textureToLoad.Height, textureFormat, GL_UNSIGNED_BYTE, &textureToLoad.Data[0]);
 
 				glTextureParameteri(diffuseTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTextureParameteri(diffuseTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -103,7 +105,7 @@ namespace dengine
 			unsigned int buffers[2];
 			unsigned int* vboPtr = &buffers[0];
 			unsigned int* eboPtr = &buffers[1];
-			glGenBuffers(2, buffers);
+			glCreateBuffers(2, buffers);
 
 			auto bufferSize = calculateBufferSize(mesh);
 			glNamedBufferData(*vboPtr, bufferSize, nullptr, GL_STATIC_DRAW);

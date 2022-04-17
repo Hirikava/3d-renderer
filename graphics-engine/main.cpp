@@ -64,13 +64,13 @@ int main(char* argc, char* argv[])
 	glfwMakeContextCurrent(window);
 
 	// During init, enable debug output
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(MessageCallback, 0);
-
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
 		std::cout << "Failed to initialize OpenGL context" << std::endl;
 		return -1;
 	}
+
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, 0);
 
 	//Load model from disk space
 
@@ -83,14 +83,14 @@ int main(char* argc, char* argv[])
 	//set up global environment
 	dengine::GlobalEnvironment globalEnvironment;
 	unsigned int globalEnvironmentUbo;
-	glGenBuffers(1, &globalEnvironmentUbo);
+	glCreateBuffers(1, &globalEnvironmentUbo);
 	glNamedBufferData(globalEnvironmentUbo, sizeof(dengine::GlobalEnvironment), nullptr, GL_STREAM_DRAW);
 
 	//make instance buffer
 	unsigned int instanceBuffer;
 	glm::mat4 modelMatrix{ 1.0f };
-	glGenBuffers(1, &instanceBuffer);
-	glNamedBufferSubData(instanceBuffer, 0, sizeof(glm::mat4), glm::value_ptr(modelMatrix));
+	glCreateBuffers(1, &instanceBuffer);
+	glNamedBufferData(instanceBuffer, sizeof(glm::mat4), glm::value_ptr(modelMatrix), GL_STREAM_DRAW);
 
 	//make vaos
 	struct RenderingUnit{
@@ -132,7 +132,7 @@ int main(char* argc, char* argv[])
 
 
 		glVertexArrayElementBuffer(vao, openglMesh.Ebo);
-		glBindBufferRange(GL_UNIFORM_BUFFER, 0, globalEnvironmentUbo, 0, sizeof(globalEnvironmentUbo));
+		glBindBufferRange(GL_UNIFORM_BUFFER, 0, globalEnvironmentUbo, 0, 144);
 		glBindVertexArray(0);
 		renderingUnits.push_back(RenderingUnit{ vao, openglModel.Materils[openglMesh.MaterialIndex].DiffuseTextureId, openglMesh.NumElements });
 	}
@@ -183,16 +183,16 @@ int main(char* argc, char* argv[])
 		int width, height;
 		glfwGetWindowSize(window, &width, &height);
 		auto aspect = static_cast<float>(width) / static_cast<float>(height);
+		globalEnvironment.CameraPostion = glm::vec4(camera.Position, 1.0f);
 		globalEnvironment.ProjectionMatrix = glm::perspective(glm::radians(45.0f), aspect, 1.0f, 100.0f);
-		globalEnvironment.ViewMatrix = glm::lookAt(glm::vec3(1.0, 1.0f, 1.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+		globalEnvironment.ViewMatrix = glm::lookAt(glm::vec3(10.0, 10.0f, 0.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 		glNamedBufferSubData(globalEnvironmentUbo, 0, sizeof(dengine::GlobalEnvironment), &globalEnvironment);
 
 		glUseProgram(program);
 		for (auto renderingUnit : renderingUnits)
 		{
 			glBindVertexArray(renderingUnit.Vao);
-			glActiveTexture(0);
-			glBindTexture(GL_TEXTURE_2D, renderingUnit.DiffuseTexture);
+			glBindTextureUnit(0, renderingUnit.DiffuseTexture);
 			glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.ElementsCount, GL_UNSIGNED_INT, nullptr, 1);
 		}
 
