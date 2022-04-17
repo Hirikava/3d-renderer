@@ -43,6 +43,21 @@ MessageCallback(GLenum source,
 		type, severity, message);
 }
 
+float cameraSpeed = 0.05f;
+float cameraRotationSpeed = 0.05f;
+void UpdateCamera(dengine::Camera& cam, float dTime)
+{
+	dengine::Camera camera = cam;
+	if (ImGui::IsKeyDown(ImGuiKey_A))
+		dengine::CameraControl::MoveCamera(cam, dTime * cameraSpeed, dengine::MoveDiraction::Left);
+	if (ImGui::IsKeyDown(ImGuiKey_D))
+		dengine::CameraControl::MoveCamera(cam, dTime * cameraSpeed, dengine::MoveDiraction::Right);
+	if (ImGui::IsKeyDown(ImGuiKey_W))
+		dengine::CameraControl::MoveCamera(cam, dTime * cameraSpeed, dengine::MoveDiraction::Forward);
+	if (ImGui::IsKeyDown(ImGuiKey_S))
+		dengine::CameraControl::MoveCamera(cam, dTime * cameraSpeed, dengine::MoveDiraction::Backwards);
+}
+
 
 
 
@@ -50,7 +65,7 @@ int main(char* argc, char* argv[])
 {
 
 	dengine::AssimpModelImporter modelImporter;
-	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\blossom_katana\\scene.gltf");
+	auto model = modelImporter.Import("C:\\Users\\daas\\Desktop\\models\\blossom_katana\\scene.gltf");
 
 	//Init GLFW
 	if (!glfwInit())
@@ -138,8 +153,8 @@ int main(char* argc, char* argv[])
 	}
 
 	//load shader program and compile it
-	auto vertexShaderSource = loadShaderFromFile("C:\\Users\\TheDAX\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.vert");
-	auto fragmentShaderSource = loadShaderFromFile("C:\\Users\\TheDAX\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.frag");
+	auto vertexShaderSource = loadShaderFromFile("C:\\Users\\daas\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.vert");
+	auto fragmentShaderSource = loadShaderFromFile("C:\\Users\\daas\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.frag");
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	unsigned int program = glCreateProgram();
@@ -168,11 +183,16 @@ int main(char* argc, char* argv[])
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-	dengine::Camera camera{};
+	dengine::Camera camera{glm::vec3(10.0f,10.0f,0.0f), glm::vec3(-1,-1,0), glm::vec3(0,1,0)};
 
 	float color[3];
+	float time = glfwGetTime();
 	while(!glfwWindowShouldClose(window))
 	{
+		float newTime = glfwGetTime();
+		float dTime = newTime - time;
+		time = newTime;
+		
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -180,12 +200,15 @@ int main(char* argc, char* argv[])
 		glClearColor(color[0], color[1], color[2], 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+
+		UpdateCamera(camera, dTime);
+
 		int width, height;
 		glfwGetWindowSize(window, &width, &height);
 		auto aspect = static_cast<float>(width) / static_cast<float>(height);
 		globalEnvironment.CameraPostion = glm::vec4(camera.Position, 1.0f);
-		globalEnvironment.ProjectionMatrix = glm::perspective(glm::radians(45.0f), aspect, 1.0f, 100.0f);
-		globalEnvironment.ViewMatrix = glm::lookAt(glm::vec3(10.0, 10.0f, 0.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 1.0f, 100.0f);
+		globalEnvironment.ViewMatrix = dengine::CameraControl::GetLookAtMatrix(camera);
 		glNamedBufferSubData(globalEnvironmentUbo, 0, sizeof(dengine::GlobalEnvironment), &globalEnvironment);
 
 		glUseProgram(program);
@@ -201,6 +224,8 @@ int main(char* argc, char* argv[])
 
 		//Start New ImGui frame
 		ImGui::ColorPicker3("color", color);
+		ImGui::DragFloat("CameraSpeed", &cameraSpeed);
+		ImGui::DragFloat("CameraRotationSpeed", &cameraRotationSpeed);
 
 		ImGui::End();
 		//Render ImGui frame
