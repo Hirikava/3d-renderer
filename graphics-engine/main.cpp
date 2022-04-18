@@ -203,6 +203,8 @@ int main(char* argc, char* argv[])
 
 	float color[3];
 	float time = glfwGetTime();
+	ImVec2 currentViewportSize(1920, 1080);
+	ImVec2 tempViewPortSize(1920, 1080);
 	while(!glfwWindowShouldClose(window))
 	{
 		float newTime = glfwGetTime();
@@ -212,6 +214,20 @@ int main(char* argc, char* argv[])
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		if(tempViewPortSize.x != currentViewportSize.x || currentViewportSize.y != tempViewPortSize.y)
+		{
+			glDeleteTextures(1, &colorAttachmentTexture);
+			glDeleteTextures(1, &depthTexture);
+			glCreateTextures(GL_TEXTURE_2D, 1, &depthTexture);
+			glCreateTextures(GL_TEXTURE_2D, 1, &colorAttachmentTexture);
+			glTextureStorage2D(depthTexture, 1, GL_DEPTH24_STENCIL8, tempViewPortSize.x, tempViewPortSize.y);
+			glTextureStorage2D(colorAttachmentTexture, 1, GL_RGBA8, tempViewPortSize.x, tempViewPortSize.y);
+			glNamedFramebufferTexture(fbo, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+			glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, colorAttachmentTexture, 0);
+			currentViewportSize = tempViewPortSize;
+		}
+
 
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glClearColor(color[0], color[1], color[2], 0.0f); 
@@ -265,8 +281,12 @@ int main(char* argc, char* argv[])
 		ImGui::DragFloat("CameraRotationSpeed", &cameraRotationSpeed);
 		ImGui::End();
 
-		ImGui::Begin("Viewport");
-		ImGui::Image((void*)(intptr_t)colorAttachmentTexture, ImVec2(1920, 1080), ImVec2(0, 1), ImVec2(1, 0));
+		auto windowFlags = ImGuiWindowFlags_NoScrollbar;
+		ImGui::Begin("Viewport", &open, windowFlags);
+		tempViewPortSize = ImGui::GetWindowSize();
+		std::cout << tempViewPortSize.x << " " << tempViewPortSize.y << std::endl;
+		ImGui::Image((void*)(intptr_t)colorAttachmentTexture, ImVec2(currentViewportSize.x, currentViewportSize.y), 
+			ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
 		//Render ImGui frame
 		ImGui::Render();
