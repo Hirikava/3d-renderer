@@ -65,7 +65,7 @@ int main(char* argc, char* argv[])
 {
 
 	dengine::AssimpModelImporter modelImporter;
-	auto model = modelImporter.Import("C:\\Users\\daas\\Desktop\\models\\blossom_katana\\scene.gltf");
+	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\blossom_katana\\scene.gltf");
 
 	//Init GLFW
 	if (!glfwInit())
@@ -153,8 +153,8 @@ int main(char* argc, char* argv[])
 	}
 
 	//load shader program and compile it
-	auto vertexShaderSource = loadShaderFromFile("C:\\Users\\daas\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.vert");
-	auto fragmentShaderSource = loadShaderFromFile("C:\\Users\\daas\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.frag");
+	auto vertexShaderSource = loadShaderFromFile("C:\\Users\\TheDAX\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.vert");
+	auto fragmentShaderSource = loadShaderFromFile("C:\\Users\\TheDAX\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.frag");
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	unsigned int program = glCreateProgram();
@@ -195,6 +195,7 @@ int main(char* argc, char* argv[])
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
@@ -223,7 +224,7 @@ int main(char* argc, char* argv[])
 		glfwGetWindowSize(window, &width, &height);
 		auto aspect = static_cast<float>(width) / static_cast<float>(height);
 		globalEnvironment.CameraPostion = glm::vec4(camera.Position, 1.0f);
-		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 1.0f, 100.0f);
+		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 0.01f, 100.0f);
 		globalEnvironment.ViewMatrix = dengine::CameraControl::GetLookAtMatrix(camera);
 		glNamedBufferSubData(globalEnvironmentUbo, 0, sizeof(dengine::GlobalEnvironment), &globalEnvironment);
 
@@ -240,6 +241,22 @@ int main(char* argc, char* argv[])
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+
+
+		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->WorkPos);
+		ImGui::SetNextWindowSize(viewport->WorkSize);
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		bool open = true;
+		ImGui::Begin("Global", &open, window_flags);
+		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+		ImGui::End();
+
+
 		ImGui::Begin("New world!");
 
 		//Start New ImGui frame
@@ -249,7 +266,7 @@ int main(char* argc, char* argv[])
 		ImGui::End();
 
 		ImGui::Begin("Viewport");
-		ImGui::Image((void*)(intptr_t)colorAttachmentTexture, ImVec2(1600, 1200));
+		ImGui::Image((void*)(intptr_t)colorAttachmentTexture, ImVec2(1920, 1080), ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
 		//Render ImGui frame
 		ImGui::Render();
