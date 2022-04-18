@@ -61,7 +61,7 @@ dengine::Mesh processMesh(const aiMesh* mesh,const  aiScene* scene)
 	memcpy(&positions[0], mesh->mVertices, mesh->mNumVertices * sizeof(glm::vec3)); //copy positions
 	memcpy(&normals[0], mesh->mNormals, cmpSize); //copy normals
 	for(int i = 0; i < mesh->mNumVertices; i++) //copy UVs
-		uvs[i] = glm::vec2(mesh->mTextureCoords[0]->x, mesh->mTextureCoords[0]->y);
+		uvs[i] = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 
 
 	//copy indecies
