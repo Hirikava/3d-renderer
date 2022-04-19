@@ -44,7 +44,7 @@ MessageCallback(GLenum source,
 }
 
 float cameraSpeed = 7.5f;
-float cameraRotationSpeed = 0.05f;
+float cameraRotationSpeed = 0.0005f;
 void UpdateCamera(dengine::Camera& cam, float dTime)
 {
 	dengine::Camera camera = cam;
@@ -58,6 +58,19 @@ void UpdateCamera(dengine::Camera& cam, float dTime)
 		dengine::CameraControl::MoveCamera(cam, dTime * cameraSpeed, dengine::MoveDiraction::Backwards);
 }
 
+void UpdateRotateCamera(dengine::Camera& cam, float xPitch, float yYaw)
+{
+	xPitch *= cameraRotationSpeed / 2;
+	yYaw *= -cameraRotationSpeed / 2;
+	glm::vec3 rotationVecRight = glm::normalize(glm::cross(cam.Diraction, glm::vec3(0, 1, 0)));
+	glm::vec3 rotationVecUp = glm::normalize(glm::cross(cam.Diraction, rotationVecRight));
+	glm::quat rotationQuatY = glm::quat(glm::cos(yYaw), rotationVecRight * glm::sin(yYaw));
+	glm::quat rotationQuatX = glm::quat(glm::cos(xPitch), rotationVecUp * glm::sin(xPitch));
+	glm::quat rotationQuat = glm::normalize(rotationQuatY * rotationQuatX);
+	auto dirQuat = rotationQuat * cam.Diraction * glm::conjugate(rotationQuat);
+	cam.Diraction = glm::normalize(glm::vec3(dirQuat.x, dirQuat.y, dirQuat.z));
+}
+
 
 
 
@@ -65,7 +78,7 @@ int main(char* argc, char* argv[])
 {
 
 	dengine::AssimpModelImporter modelImporter;
-	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\blossom_katana\\scene.gltf");
+	auto model = modelImporter.Import("C:\\Users\\daas\\Desktop\\models\\blossom_katana\\scene.gltf");
 
 	//Init GLFW
 	if (!glfwInit())
@@ -153,8 +166,8 @@ int main(char* argc, char* argv[])
 	}
 
 	//load shader program and compile it
-	auto vertexShaderSource = loadShaderFromFile("C:\\Users\\TheDAX\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.vert");
-	auto fragmentShaderSource = loadShaderFromFile("C:\\Users\\TheDAX\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.frag");
+	auto vertexShaderSource = loadShaderFromFile("C:\\Users\\daas\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.vert");
+	auto fragmentShaderSource = loadShaderFromFile("C:\\Users\\daas\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.frag");
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	unsigned int program = glCreateProgram();
@@ -234,11 +247,13 @@ int main(char* argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 
-		UpdateCamera(camera, dTime);
+		auto delta = ImGui::GetIO().MouseDelta;
+
+
 
 		int width, height;
 		glfwGetWindowSize(window, &width, &height);
-		auto aspect = static_cast<float>(width) / static_cast<float>(height);
+		auto aspect = static_cast<float>(currentViewportSize.x) / static_cast<float>(currentViewportSize.y);
 		globalEnvironment.CameraPostion = glm::vec4(camera.Position, 1.0f);
 		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 0.01f, 100.0f);
 		globalEnvironment.ViewMatrix = dengine::CameraControl::GetLookAtMatrix(camera);
@@ -278,13 +293,22 @@ int main(char* argc, char* argv[])
 		//Start New ImGui frame
 		ImGui::ColorPicker3("color", color);
 		ImGui::DragFloat("CameraSpeed", &cameraSpeed,1.0f,0,50);
-		ImGui::DragFloat("CameraRotationSpeed", &cameraRotationSpeed);
+		ImGui::DragFloat("CameraRotationSpeed", &cameraRotationSpeed,0.0001f,0,1);
 		ImGui::End();
 
 		auto windowFlags = ImGuiWindowFlags_NoScrollbar;
 		ImGui::Begin("Viewport", &open, windowFlags);
 		tempViewPortSize = ImGui::GetWindowSize();
-		std::cout << tempViewPortSize.x << " " << tempViewPortSize.y << std::endl;
+		if (ImGui::IsWindowFocused())
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			UpdateCamera(camera, dTime);
+			UpdateRotateCamera(camera, delta.x, delta.y);
+		}
+		else
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
 		ImGui::Image((void*)(intptr_t)colorAttachmentTexture, ImVec2(currentViewportSize.x, currentViewportSize.y), 
 			ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
