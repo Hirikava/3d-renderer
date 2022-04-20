@@ -18,9 +18,9 @@
 
 //logging
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/base_sink.h>
 
 const char* OpenGlLoggerName = "opengl_logger";
+const char* AppLoggerName = "app_logger";
 
 
 std::pmr::string loadShaderFromFile(const std::pmr::string& filePath)
@@ -67,8 +67,8 @@ void UpdateRotateCamera(dengine::Camera& cam, float xPitch, float yYaw)
 {
 	xPitch *= cameraRotationSpeed / 2;
 	yYaw *= -cameraRotationSpeed / 2;
-	glm::vec3 rotationVecRight = glm::normalize(glm::cross(cam.Diraction, glm::vec3(0, 1, 0)));
-	glm::vec3 rotationVecUp = glm::normalize(glm::cross(cam.Diraction, rotationVecRight));
+	const glm::vec3 rotationVecRight = glm::normalize(glm::cross(cam.Diraction, glm::vec3(0, 1, 0)));
+	const glm::vec3 rotationVecUp = glm::normalize(glm::cross(cam.Diraction, rotationVecRight));
 	glm::quat rotationQuatY = glm::quat(glm::cos(yYaw), rotationVecRight * glm::sin(yYaw));
 	glm::quat rotationQuatX = glm::quat(glm::cos(xPitch), rotationVecUp * glm::sin(xPitch));
 	glm::quat rotationQuat = glm::normalize(rotationQuatY * rotationQuatX);
@@ -81,11 +81,8 @@ void UpdateRotateCamera(dengine::Camera& cam, float xPitch, float yYaw)
 
 int main(char* argc, char* argv[])
 {
-
-	auto logger = spdlog::basic_logger_mt(OpenGlLoggerName, "logs/opengl-logs.txt");
-	auto logger2 = spdlog::get(OpenGlLoggerName);
-	logger2->info("Welcome to OpenGL");
-	dengine::AssimpModelImporter modelImporter;
+	auto applicationLogger = spdlog::basic_logger_mt(AppLoggerName, "logs/app_log.txt", true);
+	dengine::AssimpModelImporter modelImporter{applicationLogger};
 	auto model = modelImporter.Import("C:\\Users\\daas\\Desktop\\models\\blossom_katana\\scene.gltf");
 
 	//Init GLFW
@@ -105,6 +102,8 @@ int main(char* argc, char* argv[])
 		return -1;
 	}
 
+	//enable opengl logger
+	auto logger = spdlog::basic_logger_mt(OpenGlLoggerName, "logs/opengl-logs.txt", true);
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
 
