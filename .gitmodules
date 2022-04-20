@@ -22,7 +22,11 @@
 	path = deps/stb
 	url = git@github.com:nothings/stb.git
 	branch = master
-[submodule "deps/boost-log"]
-	path = deps/boost-log
-	url = git@github.com:boostorg/log.git
+[submodule "spdlog"]
+	path = spdlog
+	url = git@github.com:gabime/spdlog.git
+	branch = master
+[submodule "deps/spdlog"]
+	path = deps/spdlog
+	url = git@github.com:gabime/spdlog.git
 	branch = master

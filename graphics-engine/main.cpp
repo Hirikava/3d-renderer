@@ -16,7 +16,11 @@
 #include <rendering/camera.hpp>
 #include <rendering/global_environment.hpp>
 
+//logging
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/base_sink.h>
 
+const char* OpenGlLoggerName = "opengl_logger";
 
 
 std::pmr::string loadShaderFromFile(const std::pmr::string& filePath)
@@ -38,7 +42,8 @@ MessageCallback(GLenum source,
 	const GLchar* message,
 	const void* userParam)
 {
-	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+	auto openglLogger = spdlog::get(OpenGlLoggerName);
+	openglLogger->info("GL CALLBACK: {} type = {}, severity = {}, message = {}\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
 		type, severity, message);
 }
@@ -77,6 +82,9 @@ void UpdateRotateCamera(dengine::Camera& cam, float xPitch, float yYaw)
 int main(char* argc, char* argv[])
 {
 
+	auto logger = spdlog::basic_logger_mt(OpenGlLoggerName, "logs/opengl-logs.txt");
+	auto logger2 = spdlog::get(OpenGlLoggerName);
+	logger2->info("Welcome to OpenGL");
 	dengine::AssimpModelImporter modelImporter;
 	auto model = modelImporter.Import("C:\\Users\\daas\\Desktop\\models\\blossom_katana\\scene.gltf");
 
@@ -330,6 +338,5 @@ int main(char* argc, char* argv[])
 	//Terminate GLFW
 	glfwDestroyWindow(window);
 	glfwTerminate();
-
 	return 0;
 }
