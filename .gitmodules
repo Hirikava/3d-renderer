@@ -30,3 +30,7 @@
 	path = deps/spdlog
 	url = git@github.com:gabime/spdlog.git
 	branch = master
+[submodule "deps/thread-pool"]
+	path = deps/thread-pool
+	url = git@github.com:bshoshany/thread-pool.git
+	branch = master
