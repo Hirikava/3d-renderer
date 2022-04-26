@@ -68,10 +68,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="rendering\shaders\simple_3d.vert">
+    <None Include="rendering\shaders\simple\simple_3d.vert">
       <Filter>rendering\shaders</Filter>
     </None>
-    <None Include="rendering\shaders\simple_3d.frag">
+    <None Include="rendering\shaders\simple\simple_3d.frag">
       <Filter>rendering\shaders</Filter>
     </None>
   </ItemGroup>

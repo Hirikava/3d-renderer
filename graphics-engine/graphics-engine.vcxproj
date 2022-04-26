@@ -184,10 +184,17 @@
     <ClInclude Include="rendering\rendering_tmp.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="rendering\shaders\simple_3d.frag" />
-    <None Include="rendering\shaders\simple_3d.vert" />
+    <None Include="rendering\shaders\simple\simple_3d.frag" />
+    <None Include="rendering\shaders\simple\simple_3d.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ItemGroup>
+    <Content Include="rendering\shaders\**">
+      <Link>rendering\shaders\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+      <TargetPath>shaders\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

@@ -81,9 +81,9 @@ void UpdateRotateCamera(dengine::Camera& cam, float xPitch, float yYaw)
 
 int main(char* argc, char* argv[])
 {
-	auto applicationLogger = spdlog::basic_logger_mt(AppLoggerName, "logs/app_log.txt", true);
+	auto applicationLogger = spdlog::basic_logger_mt(AppLoggerName, "app_log.txt", true);
 	dengine::AssimpModelImporter modelImporter{applicationLogger};
-	auto model = modelImporter.Import("C:\\Users\\daas\\Desktop\\models\\blossom_katana\\scene.gltf");
+	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\blossom_katana\\scene.gltf");
 
 	//Init GLFW
 	if (!glfwInit())
@@ -103,7 +103,7 @@ int main(char* argc, char* argv[])
 	}
 
 	//enable opengl logger
-	auto logger = spdlog::basic_logger_mt(OpenGlLoggerName, "logs/opengl-logs.txt", true);
+	auto logger = spdlog::basic_logger_mt(OpenGlLoggerName, "opengl-logs.txt", true);
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
 
@@ -173,8 +173,8 @@ int main(char* argc, char* argv[])
 	}
 
 	//load shader program and compile it
-	auto vertexShaderSource = loadShaderFromFile("C:\\Users\\daas\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.vert");
-	auto fragmentShaderSource = loadShaderFromFile("C:\\Users\\daas\\Desktop\\diplom\\graphics-engine\\rendering\\shaders\\simple_3d.frag");
+	auto vertexShaderSource = loadShaderFromFile("shaders\\simple\\simple_3d.vert");
+	auto fragmentShaderSource = loadShaderFromFile("shaders\\simple\\simple_3d.frag");
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	unsigned int program = glCreateProgram();
