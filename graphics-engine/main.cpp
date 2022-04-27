@@ -181,8 +181,8 @@ int main(char* argc, char* argv[])
 	}
 
 	//load shader program and compile it
-	auto vertexShaderSource = loadShaderFromFile("shaders\\simple\\simple_3d.vert");
-	auto fragmentShaderSource = loadShaderFromFile("shaders\\simple\\simple_3d.frag");
+	auto vertexShaderSource = loadShaderFromFile("shaders\\simple-control\\simple_3d_rc.vert");
+	auto fragmentShaderSource = loadShaderFromFile("shaders\\simple-control\\simple_3d_rc.frag");
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	unsigned int program = glCreateProgram();
@@ -214,9 +214,6 @@ int main(char* argc, char* argv[])
 
 	GLenum drawBuffs[1] = { GL_COLOR_ATTACHMENT0 };
 	glNamedFramebufferDrawBuffers(fbo,1,drawBuffs);
-
-
-
 
 
 	//Init ImGui
@@ -279,6 +276,8 @@ int main(char* argc, char* argv[])
 
 		auto view = registry.view<RenderingUnit>();
 		glUseProgram(program);
+		GLuint indices[4] = { 0,1,2,3};
+		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 4, indices);
 		for (auto entity : view)
 		{
 			auto renderingUnit = view.get<RenderingUnit>(entity);
@@ -291,7 +290,6 @@ int main(char* argc, char* argv[])
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 		const ImGuiViewport* viewport = ImGui::GetMainViewport();
 		ImGui::SetNextWindowPos(viewport->WorkPos);
 		ImGui::SetNextWindowSize(viewport->WorkSize);

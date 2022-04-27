@@ -184,8 +184,20 @@
     <ClInclude Include="rendering\rendering_tmp.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="rendering\shaders\simple\simple_3d.frag" />
-    <None Include="rendering\shaders\simple\simple_3d.vert" />
+    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.frag">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.vert">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.frag">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.vert">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -68,11 +68,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="rendering\shaders\simple\simple_3d.vert">
+    <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.frag">
       <Filter>rendering\shaders</Filter>
-    </None>
-    <None Include="rendering\shaders\simple\simple_3d.frag">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.vert">
       <Filter>rendering\shaders</Filter>
-    </None>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.frag" />
+    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.vert" />
   </ItemGroup>
 </Project>
