@@ -132,6 +132,18 @@ int main(char* argc, char* argv[])
 	glCreateBuffers(1, &instanceBuffer);
 	glNamedBufferData(instanceBuffer, sizeof(glm::mat4), glm::value_ptr(modelMatrix), GL_STREAM_DRAW);
 
+	struct Material {
+		int colorSelectorIndex;
+		int pads[3];
+		glm::vec4 baseColor;
+	};
+
+
+	unsigned int materialsBuffer;
+	glCreateBuffers(1, &materialsBuffer);
+	Material material{ 1, {0,0,0}, glm::vec4(1.0f,1.0f,1.0f,1.0f) };
+	glNamedBufferData(materialsBuffer, sizeof(Material), &material, GL_STREAM_DRAW);
+
 	//make vaos
 	struct RenderingUnit{
 		unsigned int Vao;
@@ -173,6 +185,7 @@ int main(char* argc, char* argv[])
 
 		glVertexArrayElementBuffer(vao, openglMesh.Ebo);
 		glBindBufferRange(GL_UNIFORM_BUFFER, 0, globalEnvironmentUbo, 0, 144);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, materialsBuffer);
 		glBindVertexArray(0);
 
 		auto entity = registry.create();
@@ -192,14 +205,24 @@ int main(char* argc, char* argv[])
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourcePtr, nullptr);
 	glCompileShader(vertexShader);
 	glCompileShader(fragmentShader);
+
+	int logLength;
+
+	
 	glAttachShader(program, vertexShader);
 	glAttachShader(program, fragmentShader);
 	glLinkProgram(program);
+	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
+	std::pmr::string errorLog;
+	errorLog.resize(logLength);
+	glGetProgramInfoLog(program, 512, nullptr, &errorLog[0]);
+	applicationLogger->info(errorLog);
 	glDetachShader(program, vertexShader);
 	glDetachShader(program, fragmentShader);
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 	glUniformBlockBinding(program, 0, 0);
+	glShaderStorageBlockBinding(program, 0, 0);
 	glEnable(GL_DEPTH_TEST);
 
 	//CreateRenderBuffer
@@ -226,13 +249,13 @@ int main(char* argc, char* argv[])
 
 	dengine::Camera camera{glm::vec3(10.0f,10.0f,0.0f), glm::vec3(-1,-1,0), glm::vec3(0,1,0)};
 
-	float color[3];
+	float color[3] = {0,0,0};
 	float time = glfwGetTime();
 	ImVec2 currentViewportSize(1920, 1080);
 	ImVec2 tempViewPortSize(1920, 1080);
 
 
-
+	bool useDiffuseTexture = true;
 	while(!glfwWindowShouldClose(window))
 	{
 		float newTime = glfwGetTime();
@@ -260,8 +283,6 @@ int main(char* argc, char* argv[])
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glClearColor(color[0], color[1], color[2], 1.0f); 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-
 		auto delta = ImGui::GetIO().MouseDelta;
 
 
@@ -273,11 +294,12 @@ int main(char* argc, char* argv[])
 		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 0.01f, 100.0f);
 		globalEnvironment.ViewMatrix = dengine::CameraControl::GetLookAtMatrix(camera);
 		glNamedBufferSubData(globalEnvironmentUbo, 0, sizeof(dengine::GlobalEnvironment), &globalEnvironment);
+		glNamedBufferSubData(materialsBuffer, 0, sizeof(Material), &material);
 
 		auto view = registry.view<RenderingUnit>();
 		glUseProgram(program);
-		GLuint indices[4] = { 0,1,2,3};
-		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 4, indices);
+		GLuint indices[2] = {0,1};
+		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 2, indices);
 		for (auto entity : view)
 		{
 			auto renderingUnit = view.get<RenderingUnit>(entity);
@@ -310,6 +332,10 @@ int main(char* argc, char* argv[])
 		ImGui::ColorPicker3("color", color);
 		ImGui::DragFloat("CameraSpeed", &cameraSpeed,1.0f,0,50);
 		ImGui::DragFloat("CameraRotationSpeed", &cameraRotationSpeed,0.0001f,0,1);
+
+		ImGui::Checkbox("UseDiffuseTexture", &useDiffuseTexture);
+		material.colorSelectorIndex = useDiffuseTexture ? 0 : 1;
+		ImGui::ColorPicker4("Albeido Color", glm::value_ptr(material.baseColor));
 		ImGui::End();
 
 		auto windowFlags = ImGuiWindowFlags_NoScrollbar;
