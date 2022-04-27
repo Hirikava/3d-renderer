@@ -34,3 +34,7 @@
 	path = deps/thread-pool
 	url = git@github.com:bshoshany/thread-pool.git
 	branch = master
+[submodule "deps/entt"]
+	path = deps/entt
+	url = git@github.com:skypjack/entt.git
+	branch = master

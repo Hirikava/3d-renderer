@@ -79,14 +79,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>.vs\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(SolutionDir)deps\glm;$(SolutionDir)deps\assimp-build\include;$(SolutionDir)deps\stb;$(solutionDir)deps\spdlog\include</IncludePath>
+    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(SolutionDir)deps\glm;$(SolutionDir)deps\assimp-build\include;$(SolutionDir)deps\stb;$(solutionDir)deps\spdlog\include;$(SolutionDir)\deps\entt\src</IncludePath>
     <SourcePath>$(SolutionDir)deps\glad\$(Configuration)\src;$(SourcePath)</SourcePath>
     <LibraryPath>$(SolutionDir)deps\assimp-build\bin\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>.vs\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(SolutionDir)deps\glm;$(SolutionDir)deps\assimp-build\include;$(SolutionDir)deps\stb;$(solutionDir)deps\spdlog\include</IncludePath>
+    <IncludePath>$(SolutionDir)deps\glfw\include;$(SolutionDir)\deps\glad\$(Configuration)\include;$(SolutionDir)deps\imgui\backends;$(SolutionDir)deps\imgui\;$(SolutionDir);$(ProjectDir);$(SolutionDir)deps\assimp\include;$(SolutionDir)deps\glm;$(SolutionDir)deps\assimp-build\include;$(SolutionDir)deps\stb;$(solutionDir)deps\spdlog\include;$(SolutionDir)\deps\entt\src</IncludePath>
     <SourcePath>$(SolutionDir)deps\glad\$(Configuration)\src;$(SourcePath)</SourcePath>
     <LibraryPath>$(SolutionDir)deps\assimp-build\bin\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>

@@ -15,6 +15,7 @@
 #include <rendering/rendering_tmp.hpp>
 #include <rendering/camera.hpp>
 #include <rendering/global_environment.hpp>
+#include <entt/entt.hpp>
 
 //logging
 #include <spdlog/spdlog.h>
@@ -81,6 +82,8 @@ void UpdateRotateCamera(dengine::Camera& cam, float xPitch, float yYaw)
 
 int main(char* argc, char* argv[])
 {
+	entt::registry registry;
+
 	auto applicationLogger = spdlog::basic_logger_mt(AppLoggerName, "app_log.txt", true);
 	dengine::AssimpModelImporter modelImporter{applicationLogger};
 	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\blossom_katana\\scene.gltf");
@@ -88,6 +91,8 @@ int main(char* argc, char* argv[])
 	//Init GLFW
 	if (!glfwInit())
 		return -1;
+
+
 
 	//CreateWindow
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -133,7 +138,7 @@ int main(char* argc, char* argv[])
 		unsigned int DiffuseTexture;
 		unsigned long long ElementsCount;
 	};
-	std::pmr::vector<RenderingUnit> renderingUnits;
+
 	for(int i = 0; i < openglModel.Meshes.size(); i++)
 	{
 		auto& openglMesh = openglModel.Meshes[i];
@@ -169,7 +174,10 @@ int main(char* argc, char* argv[])
 		glVertexArrayElementBuffer(vao, openglMesh.Ebo);
 		glBindBufferRange(GL_UNIFORM_BUFFER, 0, globalEnvironmentUbo, 0, 144);
 		glBindVertexArray(0);
-		renderingUnits.push_back(RenderingUnit{ vao, openglModel.Materils[openglMesh.MaterialIndex].DiffuseTextureId, openglMesh.NumElements });
+
+		auto entity = registry.create();
+		RenderingUnit renderingUnit{ vao, openglModel.Materils[openglMesh.MaterialIndex].DiffuseTextureId, openglMesh.NumElements };
+		registry.emplace<RenderingUnit>(entity, renderingUnit);
 	}
 
 	//load shader program and compile it
@@ -225,6 +233,9 @@ int main(char* argc, char* argv[])
 	float time = glfwGetTime();
 	ImVec2 currentViewportSize(1920, 1080);
 	ImVec2 tempViewPortSize(1920, 1080);
+
+
+
 	while(!glfwWindowShouldClose(window))
 	{
 		float newTime = glfwGetTime();
@@ -266,9 +277,11 @@ int main(char* argc, char* argv[])
 		globalEnvironment.ViewMatrix = dengine::CameraControl::GetLookAtMatrix(camera);
 		glNamedBufferSubData(globalEnvironmentUbo, 0, sizeof(dengine::GlobalEnvironment), &globalEnvironment);
 
+		auto view = registry.view<RenderingUnit>();
 		glUseProgram(program);
-		for (auto renderingUnit : renderingUnits)
+		for (auto entity : view)
 		{
+			auto renderingUnit = view.get<RenderingUnit>(entity);
 			glBindVertexArray(renderingUnit.Vao);
 			glBindTextureUnit(0, renderingUnit.DiffuseTexture);
 			glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.ElementsCount, GL_UNSIGNED_INT, nullptr, 1);
@@ -278,8 +291,6 @@ int main(char* argc, char* argv[])
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-
 
 		const ImGuiViewport* viewport = ImGui::GetMainViewport();
 		ImGui::SetNextWindowPos(viewport->WorkPos);
