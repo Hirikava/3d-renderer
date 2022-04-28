@@ -172,12 +172,14 @@
     <ClCompile Include="..\deps\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\deps\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\deps\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="application\graphics_engine_application.cpp" />
     <ClCompile Include="importers\assimp_model_importer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c" />
     <ClCompile Include="rendering\global_environment.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application\graphics_engine_application.h" />
     <ClInclude Include="importers\assimp_model_importer.h" />
     <ClInclude Include="importers\model_importer.h" />
     <ClInclude Include="rendering\camera.hpp" />

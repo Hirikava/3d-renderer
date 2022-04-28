@@ -16,7 +16,9 @@ constexpr unsigned int ImportFlags = aiProcess_CalcTangentSpace |
 	aiProcess_FlipUVs |
 	aiProcess_EmbedTextures;
 
-dengine::AssimpModelImporter::AssimpModelImporter(const std::shared_ptr<spdlog::logger>& log) : log(log)
+
+
+dengine::AssimpModelImporter::AssimpModelImporter(const std::shared_ptr<spdlog::logger> log) : log(log)
 {
 }
 

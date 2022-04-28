@@ -19,6 +19,9 @@
     <Filter Include="rendering\shaders">
       <UniqueIdentifier>{48e45159-6b3b-420c-8907-a73f2794b562}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ui-components">
+      <UniqueIdentifier>{09f1604b-58dd-4975-8e2b-801bdf9929ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c">
@@ -52,6 +55,7 @@
     <ClCompile Include="rendering\global_environment.hpp">
       <Filter>rendering</Filter>
     </ClCompile>
+    <ClCompile Include="application\graphics_engine_application.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importers\assimp_model_importer.h">
@@ -66,6 +70,7 @@
     <ClInclude Include="rendering\camera.hpp">
       <Filter>rendering</Filter>
     </ClInclude>
+    <ClInclude Include="application\graphics_engine_application.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.frag">
@@ -74,7 +79,11 @@
     <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.vert">
       <Filter>rendering\shaders</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.frag" />
-    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.vert" />
+    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.frag">
+      <Filter>rendering\shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.vert">
+      <Filter>rendering\shaders</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

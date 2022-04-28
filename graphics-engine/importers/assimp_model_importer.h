@@ -9,7 +9,7 @@
 namespace dengine{
 	class AssimpModelImporter : public IModelImporter {
 	public:
-		AssimpModelImporter(const std::shared_ptr<spdlog::logger>& log);
+		explicit AssimpModelImporter(const std::shared_ptr<spdlog::logger> log = spdlog::get("app_logger"));
 		Model Import(std::pmr::string path) override;
 
 	private:
