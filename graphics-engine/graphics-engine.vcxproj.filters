@@ -86,4 +86,8 @@
       <Filter>rendering\shaders</Filter>
     </CopyFileToFolders>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="rendering\shaders\blin-fong\blin-fong.vert" />
+    <None Include="rendering\shaders\blin-fong\blin-fong.frag" />
+  </ItemGroup>
 </Project>

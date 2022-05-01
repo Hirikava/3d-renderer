@@ -109,7 +109,7 @@ void UpdateRotateCamera(dengine::Camera& cam, float xPitch, float yYaw)
 int dengine::GraphicsEngineApplication::RunInternal()
 {
 	//load models
-	auto model = modelImporter.Import("C:\\Users\\daas\\Desktop\\models\\blossom_katana\\scene.gltf");
+	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\blossom_katana\\scene.gltf");
 	auto openglModel = dengine::loadModelToGpu(model);
 	model.Materials.clear();
 	model.Meshes.clear();

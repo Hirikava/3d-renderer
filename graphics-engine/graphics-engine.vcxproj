@@ -211,4 +211,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="rendering\shaders\blin-fong\blin-fong.frag" />
+    <None Include="rendering\shaders\blin-fong\blin-fong.vert" />
+  </ItemGroup>
 </Project>
