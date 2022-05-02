@@ -21,8 +21,8 @@ namespace dengine
 	};
 
 	struct LoadedMaterial{
-		unsigned int DiffuseTextureId;
-		unsigned int NormalTextureId;
+		int DiffuseTextureId;
+		int NormalTextureId;
 	};
 
 

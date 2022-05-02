@@ -38,7 +38,7 @@ std::pmr::vector<dengine::LoadedMaterial> dengine::loadMaterialsToGpu(const Mode
 		else
 			diffuseTexture = index->second;
 
-		materials.push_back(LoadedMaterial{diffuseTexture});
+		materials.push_back(LoadedMaterial{static_cast<int>(diffuseTexture)});
 	}
 	return materials;
 }

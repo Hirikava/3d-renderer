@@ -50,10 +50,9 @@ namespace dengine
 			SimpleMaterialData.reserve(16);
 		}
 
-
+		int DiffuseTexture {-1};
 		std::pmr::vector<SimpleInstanceData> SimpleInstanceData;
 		std::pmr::vector<SimpleMaterialData> SimpleMaterialData;
-
 	};
 
 
@@ -69,11 +68,11 @@ namespace dengine
 
 	class SimpleRedneringSubmitter{
 	public:
-		void Submit(SimpleRenderingUnit renderingUnit, glm::mat4 modelMatrxi);
+		void Submit(SimpleRenderingUnit renderingUnit, Material material, glm::mat4 modelMatrix);
 		void DispatchDrawCall(unsigned programId, GlobalEnvironment environment) const;
 		void Clear();
 	private:
-		std::unordered_map<unsigned int, std::pair<SimpleRenderingUnit, SimpleSubmitInfo>> instancedToDraw;
+		std::unordered_map<std::pmr::string, std::pair<SimpleRenderingUnit, SimpleSubmitInfo>> instancedToDraw;
 	};
 }
 

@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <utils/shader_load_util.hpp>
+#include <sstream>
 
 //ATTRIBUTE BINDINGS
 #define ATTRIBUTE_POSITION_LOCATION 0
@@ -17,6 +18,7 @@
 //SHADER STORAGE BUFFER BINDINGS
 #define SHADER_STORAGE_MATERIAL_BINDING 0
 #define SHADER_STORAGE_MATERIAL_INDEX 0
+
 
 unsigned dengine::SimpleRenderingScheme::LoadShaderProgram()
 {
@@ -69,13 +71,14 @@ dengine::SimpleRenderingUnit dengine::SimpleRenderingScheme::CreateRenderingUnit
 	glBindVertexArray(vao);
 
 	//Positions vertex layout
-	auto positionVertexLayout = mesh.GetVertexAttributeLayout(dengine::Positions);
-	glVertexArrayVertexBuffer(vao, ATTRIBUTE_POSITION_BINDING, vbo, positionVertexLayout.Offset, positionVertexLayout.Stride);
+	auto positionVertexLayout = mesh.GetVertexAttributeLayout(Positions);
+	glVertexArrayVertexBuffer(vao, ATTRIBUTE_POSITION_BINDING, vbo, positionVertexLayout.Offset,
+	                          positionVertexLayout.Stride);
 	glVertexArrayAttribFormat(vao, ATTRIBUTE_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexArrayAttribBinding(vao, ATTRIBUTE_POSITION_LOCATION, ATTRIBUTE_POSITION_BINDING);
 	glEnableVertexArrayAttrib(vao, ATTRIBUTE_POSITION_LOCATION);
 	//Uvs binding
-	auto uvVertexLayout = mesh.GetVertexAttributeLayout(dengine::UVs);
+	auto uvVertexLayout = mesh.GetVertexAttributeLayout(UVs);
 	glVertexArrayVertexBuffer(vao, ATTRIBUTE_NORMAL_BINDING, vbo, uvVertexLayout.Offset, uvVertexLayout.Stride);
 	glVertexArrayAttribFormat(vao, ATTRIBUTE_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexArrayAttribBinding(vao, ATTRIBUTE_NORMAL_LOCATION, ATTRIBUTE_NORMAL_BINDING);
@@ -96,26 +99,34 @@ dengine::SimpleRenderingUnit dengine::SimpleRenderingScheme::CreateRenderingUnit
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, SHADER_STORAGE_MATERIAL_BINDING, materialsBuffer);
 	glBindVertexArray(0);
 
-	return SimpleRenderingUnit{
-		vao,
-		mesh.NumElements,
-		instanceBuffer,
-		materialsBuffer,
-		environmentBuffer
-	};
+	return SimpleRenderingUnit{vao, mesh.NumElements, instanceBuffer, materialsBuffer, environmentBuffer};
 }
 
 
-void dengine::SimpleRedneringSubmitter::Submit(SimpleRenderingUnit renderingUnit, glm::mat4 modelMatrxi)
+std::pmr::string getCacheId(unsigned int vaoId, unsigned int diffuseTextureId)
 {
-	auto findIter = instancedToDraw.find(renderingUnit.Vao);
+	std::stringstream ss;
+	ss << "vao:{" << vaoId << "}" << "-" << "diffuseTexture: {" << diffuseTextureId << "}";
+	return std::pmr::string(ss.str());
+}
+
+
+void dengine::SimpleRedneringSubmitter::Submit(SimpleRenderingUnit renderingUnit, Material material,
+                                               glm::mat4 modelMatrix)
+{
+	auto cacheId = getCacheId(renderingUnit.Vao, material.DiffuseTextureIndex);
+	auto findIter = instancedToDraw.find(cacheId);
 	if (findIter == instancedToDraw.end())
-		instancedToDraw[renderingUnit.Vao] ={renderingUnit,SimpleSubmitInfo{}};
-	auto& drawInstance = instancedToDraw[renderingUnit.Vao];
-	drawInstance.second.SimpleInstanceData.push_back(SimpleInstanceData{ modelMatrxi });
+	{
+		SimpleSubmitInfo submitInfo{};
+		submitInfo.DiffuseTexture = material.DiffuseTextureIndex;
+		instancedToDraw[cacheId] = { renderingUnit, submitInfo };
+	}
+	auto& drawInstance = instancedToDraw[cacheId];
+	drawInstance.second.SimpleInstanceData.push_back(SimpleInstanceData{modelMatrix});
 	SimpleMaterialData simpleMaterialData{};
-	simpleMaterialData.BaseColor = glm::vec4(1.0f, 0.0f,0.0f,1.0f);
-	simpleMaterialData.ColorSelector.Index = 1;
+	simpleMaterialData.BaseColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	simpleMaterialData.ColorSelector.Index = material.DiffuseTextureIndex == -1 ? 1 : 0;
 	drawInstance.second.SimpleMaterialData.push_back(simpleMaterialData);
 }
 
@@ -123,7 +134,7 @@ void dengine::SimpleRedneringSubmitter::Submit(SimpleRenderingUnit renderingUnit
 void dengine::SimpleRedneringSubmitter::DispatchDrawCall(unsigned programId, GlobalEnvironment environment) const
 {
 	glUseProgram(programId);
-	GLuint indices[2] = { 0,1 };
+	GLuint indices[2] = {0, 1};
 	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 2, indices);
 
 	for (auto& index : instancedToDraw)
@@ -131,13 +142,20 @@ void dengine::SimpleRedneringSubmitter::DispatchDrawCall(unsigned programId, Glo
 		auto& submitInfo = index.second.second;
 		auto& renderingUnit = index.second.first;
 
+		glBindTextureUnit(0, index.second.second.DiffuseTexture);
 		//Update draw info
 		SimpleEnvironmentData simpleEnvironmentData{environment.ProjectionMatrix, environment.ViewMatrix};
-		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, sizeof(SimpleEnvironmentData), &simpleEnvironmentData); 	//Update global environment
-		glNamedBufferSubData(renderingUnit.InstaciesBuffer, 0, sizeof(SimpleInstanceData) * submitInfo.SimpleInstanceData.size(), &submitInfo.SimpleInstanceData[0]);//Update model matricies
-		glNamedBufferSubData(renderingUnit.MaterialsBuffer, 0, sizeof(SimpleMaterialData) * submitInfo.SimpleMaterialData.size(), &submitInfo.SimpleMaterialData[0]);//Update model materials
+		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, sizeof(SimpleEnvironmentData), &simpleEnvironmentData);
+		//Update global environment
+		glNamedBufferSubData(renderingUnit.InstaciesBuffer, 0,
+		                     sizeof(SimpleInstanceData) * submitInfo.SimpleInstanceData.size(),
+		                     &submitInfo.SimpleInstanceData[0]); //Update model matricies
+		glNamedBufferSubData(renderingUnit.MaterialsBuffer, 0,
+		                     sizeof(SimpleMaterialData) * submitInfo.SimpleMaterialData.size(),
+		                     &submitInfo.SimpleMaterialData[0]); //Update model materials
 		glBindVertexArray(renderingUnit.Vao);
-		glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.IndeciesSize, GL_UNSIGNED_INT, nullptr, submitInfo.SimpleInstanceData.size());
+		glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.IndeciesSize, GL_UNSIGNED_INT, nullptr,
+		                        submitInfo.SimpleInstanceData.size());
 	}
 }
 
@@ -151,4 +169,3 @@ void dengine::SimpleRedneringSubmitter::Clear()
 		submitInfo.SimpleInstanceData.clear();
 	}
 }
-
