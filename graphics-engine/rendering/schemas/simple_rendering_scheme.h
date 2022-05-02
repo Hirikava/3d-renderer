@@ -50,7 +50,8 @@ namespace dengine
 			SimpleMaterialData.reserve(16);
 		}
 
-		int DiffuseTexture {-1};
+
+		int DiffuseTexture{-1};
 		std::pmr::vector<SimpleInstanceData> SimpleInstanceData;
 		std::pmr::vector<SimpleMaterialData> SimpleMaterialData;
 	};
@@ -61,9 +62,6 @@ namespace dengine
 		unsigned LoadShaderProgram() override;
 		static SimpleRenderingUnit CreateRenderingUnit(const BufferedMesh& mesh);
 	};
-
-
-
 
 
 	class SimpleRedneringSubmitter{

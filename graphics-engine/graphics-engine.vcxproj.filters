@@ -58,6 +58,8 @@
     <ClCompile Include="application\graphics_engine_application.cpp" />
     <ClCompile Include="rendering\schemas\simple_rendering_scheme.cpp" />
     <ClCompile Include="rendering\rendering_tmp.cpp" />
+    <ClCompile Include="rendering\schemas\blin_fong_rendering_scheme.cpp" />
+    <ClCompile Include="utils\shader_load_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importers\assimp_model_importer.h">
@@ -75,7 +77,8 @@
     <ClInclude Include="application\graphics_engine_application.h" />
     <ClInclude Include="rendering\schemas\rendering_scheme.h" />
     <ClInclude Include="rendering\schemas\simple_rendering_scheme.h" />
-    <ClInclude Include="utils\shader_load_util.hpp" />
+    <ClInclude Include="utils\shader_load_utils.h" />
+    <ClInclude Include="rendering\schemas\blin_fong_rendering_scheme.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="rendering\shaders\simple.frag">

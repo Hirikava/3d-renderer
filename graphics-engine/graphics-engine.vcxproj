@@ -178,17 +178,20 @@
     <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c" />
     <ClCompile Include="rendering\global_environment.h" />
     <ClCompile Include="rendering\rendering_tmp.cpp" />
+    <ClCompile Include="rendering\schemas\blin_fong_rendering_scheme.cpp" />
     <ClCompile Include="rendering\schemas\simple_rendering_scheme.cpp" />
+    <ClCompile Include="utils\shader_load_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\graphics_engine_application.h" />
     <ClInclude Include="importers\assimp_model_importer.h" />
     <ClInclude Include="importers\model_importer.h" />
     <ClInclude Include="rendering\camera.hpp" />
+    <ClInclude Include="rendering\schemas\blin_fong_rendering_scheme.h" />
     <ClInclude Include="rendering\schemas\rendering_scheme.h" />
     <ClInclude Include="rendering\rendering_tmp.h" />
     <ClInclude Include="rendering\schemas\simple_rendering_scheme.h" />
-    <ClInclude Include="utils\shader_load_util.hpp" />
+    <ClInclude Include="utils\shader_load_utils.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="rendering\shaders\simple.frag">

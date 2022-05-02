@@ -17,7 +17,7 @@
 #include <rendering/camera.hpp>
 #include <rendering/global_environment.h>
 
-#include <rendering/schemas/simple_rendering_scheme.h>
+#include <rendering/schemas/blin_fong_rendering_scheme.h>
 
 const char* OpenGlLoggerName = "opengl_logger";
 const char* AppLoggerName = "app_logger";
@@ -115,20 +115,22 @@ int dengine::GraphicsEngineApplication::RunInternal()
 
 	//set up global environment
 	GlobalEnvironment globalEnvironment;
+	globalEnvironment.LightsPositions.push_back(glm::vec4(10, 10, 10, 0));
+	globalEnvironment.LightsPositions.push_back(glm::vec4(-10, -10, -10, 0));
 	glm::mat4 modelMatrix{1.0f};
 
 	//make vaos
 	for (int i = 0; i < openglModel.Meshes.size(); i++)
 	{
-		auto simpleRenderinUnit = SimpleRenderingScheme::CreateRenderingUnit(openglModel.Meshes[i]);
+		auto simpleRenderinUnit = BlinFongRenderingScheme::CreateRenderingUnit(openglModel.Meshes[i]);
 		auto entity = registry.create();
-		registry.emplace<SimpleRenderingUnit>(entity, simpleRenderinUnit);
+		registry.emplace<BlinFongRenderingUnit>(entity, simpleRenderinUnit);
 		registry.emplace<TransformComponent>(entity, modelMatrix);
 		registry.emplace<Material>(entity, Material{ openglModel.Materils[openglModel.Meshes[i].MaterialIndex].DiffuseTextureId });
 	}
 
 	//load shader program and compile it
-	SimpleRenderingScheme simpleRenderingScheme;
+	BlinFongRenderingScheme simpleRenderingScheme;
 	auto program = simpleRenderingScheme.LoadShaderProgram();
 
 
@@ -155,7 +157,7 @@ int dengine::GraphicsEngineApplication::RunInternal()
 	ImVec2 tempViewPortSize(1920, 1080);
 
 
-	SimpleRedneringSubmitter simpleRedneringSubmitter;
+	BlinFongRenderingSubmiter simpleRedneringSubmitter;
 
 	bool useDiffuseTexture = true;
 	while (!glfwWindowShouldClose(window))
@@ -194,10 +196,10 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 0.01f, 100.0f);
 		globalEnvironment.ViewMatrix = CameraControl::GetLookAtMatrix(camera);
 
-		auto view = registry.view<SimpleRenderingUnit, TransformComponent, Material>();
+		auto view = registry.view<BlinFongRenderingUnit, TransformComponent, Material>();
 		for (auto entity : view)
 		{
-			auto renderingUnit = view.get<SimpleRenderingUnit>(entity);
+			auto renderingUnit = view.get<BlinFongRenderingUnit>(entity);
 			auto material = view.get<Material>(entity);
 			auto modelMatrix1 = glm::mat4(1.0f);
 			auto modelMatrix2 = translate(glm::mat4(1.0f), glm::vec3(4.0f, 4.0f, 0));
