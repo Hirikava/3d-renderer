@@ -24,7 +24,7 @@ out vec4 outputColor;
 
 void main()
 {
-	vec3 ambientImpact = vec3(0.1, 0.1, 0.1);
+	vec3 ambientImpact = vec3(0.02, 0.02, 0.02);
 
 	vec3 resultDiffuseImpact = vec3(0,0,0);
 	vec3 norm = normalize(fsIn.normal);

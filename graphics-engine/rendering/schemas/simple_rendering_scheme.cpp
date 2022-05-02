@@ -5,7 +5,7 @@
 #include <sstream>
 
 //ATTRIBUTE BINDINGS
-constexpr unsigned int  AttributePositionLocation = 0;
+constexpr unsigned int AttributePositionLocation = 0;
 constexpr unsigned int AttributeUVsLocation = 1;
 constexpr unsigned int AttributeModelMatrixBaseLocation = 2;
 

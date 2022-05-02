@@ -7,26 +7,21 @@
 
 
 //ATTRIBUTE BINDINGS
-#define ATTRIBUTE_POSITION_LOCATION 0
-#define ATTRIBUTE_POSITION_BINDING 0
-#define ATTRIBUTE_NORMAL_LOCATION 1
-#define ATTRIBUTE_NORMAL_BINDING 1
-#define ATTRIBUTE_UV_LOCATION 2
-#define ATTRIBUTE_UV_BINDING 2
-
+constexpr unsigned int AttributePositionLocation = 0;
+constexpr unsigned int AttributeNormalLocation = 1;
+constexpr unsigned int AttributeUVsLocation = 2;
+constexpr unsigned int AttributeModelMatrixBaseLocation = 3;
 //UNIFORM BUFFER BINDINGS
-#define UNIFORM_ENVIRONMENT_BLOCK_BINDING 0
-#define UNIFROM_ENVIRONMENT_BLOCK_INDEX 0
+constexpr unsigned int UboEnvironmentsBinding = 0;
 //SHADER STORAGE BUFFER BINDINGS
-#define SHADER_STORAGE_LIGHTS_BINDING 0
-#define SHADER_STORAGE_lIGHTS_INDEX 0
+constexpr unsigned int SsboLightsInfosBinding = 0;
 
 
 unsigned dengine::BlinFongRenderingScheme::LoadShaderProgram()
 {
 	auto program = uploadAndCompileShaders("shaders/blin-fong.vert", "shaders/blin-fong.frag");
-	glUniformBlockBinding(program, UNIFORM_ENVIRONMENT_BLOCK_BINDING, UNIFROM_ENVIRONMENT_BLOCK_INDEX);
-	glShaderStorageBlockBinding(program, SHADER_STORAGE_LIGHTS_BINDING, SHADER_STORAGE_lIGHTS_INDEX);
+	glUniformBlockBinding(program, 0, UboEnvironmentsBinding);
+	glShaderStorageBlockBinding(program, 0, SsboLightsInfosBinding);
 	return program;
 }
 
@@ -52,35 +47,43 @@ dengine::BlinFongRenderingUnit dengine::BlinFongRenderingScheme::CreateRendering
 
 	//Positions vertex layout
 	auto positionVertexLayout = mesh.GetVertexAttributeLayout(Positions);
-	glVertexArrayVertexBuffer(vao, ATTRIBUTE_POSITION_BINDING, vbo, positionVertexLayout.Offset,
-		positionVertexLayout.Stride);
-	glVertexArrayAttribFormat(vao, ATTRIBUTE_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexArrayAttribBinding(vao, ATTRIBUTE_POSITION_LOCATION, ATTRIBUTE_POSITION_BINDING);
-	glEnableVertexArrayAttrib(vao, ATTRIBUTE_POSITION_LOCATION);
-	//Uvs binding
-	auto uvVertexLayout = mesh.GetVertexAttributeLayout(UVs);
-	glVertexArrayVertexBuffer(vao, ATTRIBUTE_NORMAL_BINDING, vbo, uvVertexLayout.Offset, uvVertexLayout.Stride);
-	glVertexArrayAttribFormat(vao, ATTRIBUTE_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexArrayAttribBinding(vao, ATTRIBUTE_NORMAL_LOCATION, ATTRIBUTE_NORMAL_BINDING);
-	glEnableVertexArrayAttrib(vao, ATTRIBUTE_NORMAL_LOCATION);
+	glVertexArrayVertexBuffer(vao, 0, vbo, positionVertexLayout.Offset,
+	                          positionVertexLayout.Stride);
+	glVertexArrayAttribFormat(vao, AttributePositionLocation, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribBinding(vao, AttributePositionLocation, 0);
+	glEnableVertexArrayAttrib(vao, AttributePositionLocation);
+	//Normals binding
+	auto normalsLayout = mesh.GetVertexAttributeLayout(Normals);
+	glVertexArrayVertexBuffer(vao, AttributeNormalLocation, vbo, normalsLayout.Offset, normalsLayout.Stride);
+	glVertexArrayAttribFormat(vao, AttributeNormalLocation, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribBinding(vao, AttributeNormalLocation, 1);
+	glEnableVertexArrayAttrib(vao, AttributeNormalLocation);
+	//uvs binding
+	auto uvsLayot = mesh.GetVertexAttributeLayout(UVs);
+	glVertexArrayVertexBuffer(vao, AttributeUVsLocation, vbo, uvsLayot.Offset, uvsLayot.Stride);
+	glVertexArrayAttribFormat(vao, AttributeUVsLocation, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribBinding(vao, AttributeUVsLocation, 2);
+	glEnableVertexArrayAttrib(vao, AttributeUVsLocation);
+
 
 	//Bind instance buffer
-	glVertexArrayVertexBuffer(vao, ATTRIBUTE_UV_BINDING, instanceBuffer, 0, sizeof(glm::mat4));
+	glVertexArrayVertexBuffer(vao, AttributeModelMatrixBaseLocation, instanceBuffer, 0, sizeof(glm::mat4));
 	for (int i = 0; i < 4; i++)
 	{
-		glVertexArrayAttribFormat(vao, ATTRIBUTE_UV_LOCATION + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4) * i);
-		glVertexArrayAttribBinding(vao, ATTRIBUTE_UV_LOCATION + i, ATTRIBUTE_UV_BINDING);
-		glEnableVertexArrayAttrib(vao, ATTRIBUTE_UV_LOCATION + i);
-		glVertexArrayBindingDivisor(vao, ATTRIBUTE_UV_LOCATION + i, 1);
+		glVertexArrayAttribFormat(vao, AttributeModelMatrixBaseLocation + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4) * i);
+		glVertexArrayAttribBinding(vao, AttributeModelMatrixBaseLocation + i, AttributeModelMatrixBaseLocation);
+		glEnableVertexArrayAttrib(vao, AttributeModelMatrixBaseLocation + i);
+		glVertexArrayBindingDivisor(vao, AttributeModelMatrixBaseLocation + i, 1);
 	}
 
 	glVertexArrayElementBuffer(vao, mesh.Ebo);
-	glBindBufferBase(GL_UNIFORM_BUFFER, UNIFORM_ENVIRONMENT_BLOCK_BINDING, environmentBuffer);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, SHADER_STORAGE_LIGHTS_BINDING, environmentBuffer);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, environmentBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, lightsBuffer);
 	glBindVertexArray(0);
 
-	return BlinFongRenderingUnit{ vao, mesh.NumElements, instanceBuffer,  environmentBuffer };
+	return BlinFongRenderingUnit{vao, mesh.NumElements, instanceBuffer, environmentBuffer, lightsBuffer};
 }
+
 
 std::pmr::string getBlinFongCacheId(unsigned int vaoId, unsigned int diffuseTextureId)
 {
@@ -89,8 +92,9 @@ std::pmr::string getBlinFongCacheId(unsigned int vaoId, unsigned int diffuseText
 	return std::pmr::string(ss.str());
 }
 
+
 void dengine::BlinFongRenderingSubmiter::Submit(BlinFongRenderingUnit renderingUnit, Material material,
-	glm::mat4 modelMatrix)
+                                                glm::mat4 modelMatrix)
 {
 	auto cacheId = getBlinFongCacheId(renderingUnit.Vao, material.DiffuseTextureIndex);
 	auto findIter = instancedToDraw.find(cacheId);
@@ -98,20 +102,22 @@ void dengine::BlinFongRenderingSubmiter::Submit(BlinFongRenderingUnit renderingU
 	{
 		BlinFongSubmitInfo submitInfo{};
 		submitInfo.DiffuseTexture = material.DiffuseTextureIndex;
-		instancedToDraw[cacheId] = { renderingUnit, submitInfo };
+		instancedToDraw[cacheId] = {renderingUnit, submitInfo};
 	}
 	auto& drawInstance = instancedToDraw[cacheId];
-	drawInstance.second.InstanceDatas.push_back(BlinFongInstanceData{ modelMatrix });
+	drawInstance.second.InstanceDatas.push_back(BlinFongInstanceData{modelMatrix});
 }
 
 
-void dengine::BlinFongRenderingSubmiter::DispatchDrawCall(unsigned programId, const GlobalEnvironment& environment) const
+void dengine::BlinFongRenderingSubmiter::DispatchDrawCall(unsigned programId,
+                                                          const GlobalEnvironment& environment) const
 {
 	glUseProgram(programId);
 
 	BlinFongLightsInfo lightsInfo;
 	lightsInfo.Info.Count = environment.LightsPositions.size();
-	memcpy(lightsInfo.LightsPositions, &environment.LightsPositions[0], environment.LightsPositions.size() * sizeof(glm::vec4));
+	memcpy(lightsInfo.LightsPositions, &environment.LightsPositions[0],
+	       environment.LightsPositions.size() * sizeof(glm::vec4));
 
 	for (auto& index : instancedToDraw)
 	{
@@ -120,18 +126,20 @@ void dengine::BlinFongRenderingSubmiter::DispatchDrawCall(unsigned programId, co
 
 		glBindTextureUnit(0, index.second.second.DiffuseTexture);
 		//Update draw info
-		BlinFongEnvironmentData blinFongEnvironmentData{ environment.CameraPostion, environment.ProjectionMatrix, environment.ViewMatrix };
-		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, sizeof(BlinFongEnvironmentData), &blinFongEnvironmentData);
+		BlinFongEnvironmentData blinFongEnvironmentData{
+			environment.CameraPostion, environment.ProjectionMatrix, environment.ViewMatrix
+		};
+		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, sizeof(BlinFongEnvironmentData),
+		                     &blinFongEnvironmentData);
 		//Update global environment
 		glNamedBufferSubData(renderingUnit.InstaciesBuffer, 0,
-			sizeof(BlinFongInstanceData) * submitInfo.InstanceDatas.size(),
-			&submitInfo.InstanceDatas[0]); //Update model matricies
-		glNamedBufferSubData(renderingUnit.LightsBuffer, 0,
-			sizeof(BlinFongLightsInfo),
-			&lightsInfo); //Update lights information
+		                     sizeof(BlinFongInstanceData) * submitInfo.InstanceDatas.size(),
+		                     &submitInfo.InstanceDatas[0]); //Update model matricies
+		glNamedBufferSubData(renderingUnit.LightsBuffer, 0, sizeof(BlinFongLightsInfo), &lightsInfo);
+		//Update lights information
 		glBindVertexArray(renderingUnit.Vao);
 		glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.IndeciesSize, GL_UNSIGNED_INT, nullptr,
-			submitInfo.InstanceDatas.size());
+		                        submitInfo.InstanceDatas.size());
 	}
 }
 

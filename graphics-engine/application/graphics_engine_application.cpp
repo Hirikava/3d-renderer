@@ -115,7 +115,6 @@ int dengine::GraphicsEngineApplication::RunInternal()
 
 	//set up global environment
 	GlobalEnvironment globalEnvironment;
-	globalEnvironment.LightsPositions.push_back(glm::vec4(10, 10, 10, 0));
 	globalEnvironment.LightsPositions.push_back(glm::vec4(-10, -10, -10, 0));
 	glm::mat4 modelMatrix{1.0f};
 
@@ -157,7 +156,7 @@ int dengine::GraphicsEngineApplication::RunInternal()
 	ImVec2 tempViewPortSize(1920, 1080);
 
 
-	BlinFongRenderingSubmiter simpleRedneringSubmitter;
+	BlinFongRenderingSubmiter renderingSubmitter;
 
 	bool useDiffuseTexture = true;
 	while (!glfwWindowShouldClose(window))
@@ -203,11 +202,12 @@ int dengine::GraphicsEngineApplication::RunInternal()
 			auto material = view.get<Material>(entity);
 			auto modelMatrix1 = glm::mat4(1.0f);
 			auto modelMatrix2 = translate(glm::mat4(1.0f), glm::vec3(4.0f, 4.0f, 0));
-			simpleRedneringSubmitter.Submit(renderingUnit, material, modelMatrix1);
+			renderingSubmitter.Submit(renderingUnit, material, modelMatrix1);
+			renderingSubmitter.Submit(renderingUnit, material, modelMatrix2);
 		}
 
-		simpleRedneringSubmitter.DispatchDrawCall(program, globalEnvironment);
-		simpleRedneringSubmitter.Clear();
+		renderingSubmitter.DispatchDrawCall(program, globalEnvironment);
+		renderingSubmitter.Clear();
 
 		//swap to default framebuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
