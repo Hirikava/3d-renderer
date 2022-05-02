@@ -197,8 +197,10 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		for (auto entity : view)
 		{
 			auto renderingUnit = view.get<SimpleRenderingUnit>(entity);
-			auto modelMatrix = view.get<TransformComponent>(entity).ModelMatrix;
-			simpleRedneringSubmitter.Submit(renderingUnit, modelMatrix);
+			auto modelMatrix1 = glm::mat4(1.0f);
+			auto modelMatrix2 = glm::translate(glm::mat4(1.0f), glm::vec3(4.0f,4.0f,0));
+			simpleRedneringSubmitter.Submit(renderingUnit, modelMatrix1);
+			simpleRedneringSubmitter.Submit(renderingUnit, modelMatrix2);
 		}
 
 		simpleRedneringSubmitter.DispatchDrawCall(program, globalEnvironment);
