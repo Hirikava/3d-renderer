@@ -5,19 +5,14 @@
 #include <sstream>
 
 //ATTRIBUTE BINDINGS
-#define ATTRIBUTE_POSITION_LOCATION 0
-#define ATTRIBUTE_POSITION_BINDING 0
-#define ATTRIBUTE_NORMAL_LOCATION 1
-#define ATTRIBUTE_NORMAL_BINDING 1
-#define ATTRIBUTE_UV_LOCATION 2
-#define ATTRIBUTE_UV_BINDING 2
+constexpr unsigned int  AttributePositionLocation = 0;
+constexpr unsigned int AttributeUVsLocation = 1;
+constexpr unsigned int AttributeModelMatrixBaseLocation = 2;
 
 //UNIFORM BUFFER BINDINGS
-#define UNIFORM_ENVIRONMENT_BLOCK_BINDING 0
-#define UNIFROM_ENVIRONMENT_BLOCK_INDEX 0
+constexpr unsigned int UboEnvironmentBinding = 0;
 //SHADER STORAGE BUFFER BINDINGS
-#define SHADER_STORAGE_MATERIAL_BINDING 0
-#define SHADER_STORAGE_MATERIAL_INDEX 0
+constexpr unsigned int SsboMaterialBinding = 0;
 
 
 unsigned dengine::SimpleRenderingScheme::LoadShaderProgram()
@@ -44,8 +39,8 @@ unsigned dengine::SimpleRenderingScheme::LoadShaderProgram()
 	glDeleteShader(fragmentShader);
 
 
-	glUniformBlockBinding(program, UNIFORM_ENVIRONMENT_BLOCK_BINDING, UNIFROM_ENVIRONMENT_BLOCK_INDEX);
-	glShaderStorageBlockBinding(program, SHADER_STORAGE_MATERIAL_INDEX, SHADER_STORAGE_MATERIAL_BINDING);
+	glUniformBlockBinding(program, UboEnvironmentBinding, 0);
+	glShaderStorageBlockBinding(program, SsboMaterialBinding, 0);
 	return program;
 }
 
@@ -72,31 +67,31 @@ dengine::SimpleRenderingUnit dengine::SimpleRenderingScheme::CreateRenderingUnit
 
 	//Positions vertex layout
 	auto positionVertexLayout = mesh.GetVertexAttributeLayout(Positions);
-	glVertexArrayVertexBuffer(vao, ATTRIBUTE_POSITION_BINDING, vbo, positionVertexLayout.Offset,
+	glVertexArrayVertexBuffer(vao, AttributePositionLocation, vbo, positionVertexLayout.Offset,
 	                          positionVertexLayout.Stride);
-	glVertexArrayAttribFormat(vao, ATTRIBUTE_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexArrayAttribBinding(vao, ATTRIBUTE_POSITION_LOCATION, ATTRIBUTE_POSITION_BINDING);
-	glEnableVertexArrayAttrib(vao, ATTRIBUTE_POSITION_LOCATION);
+	glVertexArrayAttribFormat(vao, AttributePositionLocation, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribBinding(vao, AttributePositionLocation, 0);
+	glEnableVertexArrayAttrib(vao, AttributePositionLocation);
 	//Uvs binding
 	auto uvVertexLayout = mesh.GetVertexAttributeLayout(UVs);
-	glVertexArrayVertexBuffer(vao, ATTRIBUTE_NORMAL_BINDING, vbo, uvVertexLayout.Offset, uvVertexLayout.Stride);
-	glVertexArrayAttribFormat(vao, ATTRIBUTE_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexArrayAttribBinding(vao, ATTRIBUTE_NORMAL_LOCATION, ATTRIBUTE_NORMAL_BINDING);
-	glEnableVertexArrayAttrib(vao, ATTRIBUTE_NORMAL_LOCATION);
+	glVertexArrayVertexBuffer(vao, 1, vbo, uvVertexLayout.Offset, uvVertexLayout.Stride);
+	glVertexArrayAttribFormat(vao, AttributeUVsLocation, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribBinding(vao, AttributeUVsLocation, 1);
+	glEnableVertexArrayAttrib(vao, AttributeUVsLocation);
 
 	//Bind instance buffer
-	glVertexArrayVertexBuffer(vao, ATTRIBUTE_UV_BINDING, instanceBuffer, 0, sizeof(glm::mat4));
+	glVertexArrayVertexBuffer(vao, 2, instanceBuffer, 0, sizeof(glm::mat4));
 	for (int i = 0; i < 4; i++)
 	{
-		glVertexArrayAttribFormat(vao, ATTRIBUTE_UV_LOCATION + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4) * i);
-		glVertexArrayAttribBinding(vao, ATTRIBUTE_UV_LOCATION + i, ATTRIBUTE_UV_BINDING);
-		glEnableVertexArrayAttrib(vao, ATTRIBUTE_UV_LOCATION + i);
-		glVertexArrayBindingDivisor(vao, ATTRIBUTE_UV_LOCATION + i, 1);
+		glVertexArrayAttribFormat(vao, AttributeModelMatrixBaseLocation + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4) * i);
+		glVertexArrayAttribBinding(vao, AttributeModelMatrixBaseLocation + i, 2);
+		glEnableVertexArrayAttrib(vao, AttributeModelMatrixBaseLocation + i);
+		glVertexArrayBindingDivisor(vao, AttributeModelMatrixBaseLocation + i, 1);
 	}
 
 	glVertexArrayElementBuffer(vao, mesh.Ebo);
-	glBindBufferBase(GL_UNIFORM_BUFFER, UNIFORM_ENVIRONMENT_BLOCK_BINDING, environmentBuffer);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, SHADER_STORAGE_MATERIAL_BINDING, materialsBuffer);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, environmentBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, materialsBuffer);
 	glBindVertexArray(0);
 
 	return SimpleRenderingUnit{vao, mesh.NumElements, instanceBuffer, materialsBuffer, environmentBuffer};
