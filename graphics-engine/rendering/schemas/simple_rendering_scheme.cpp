@@ -166,6 +166,6 @@ void dengine::SimpleRedneringSubmitter::Clear()
 	{
 		auto& submitInfo = index.second.second;
 		submitInfo.SimpleInstanceData.clear();
-		submitInfo.SimpleInstanceData.clear();
+		submitInfo.SimpleMaterialData.clear();
 	}
 }
