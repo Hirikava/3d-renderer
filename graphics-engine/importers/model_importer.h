@@ -1,8 +1,8 @@
 #ifndef MODEL_IMPORTER_INCLUDED
 #define MODEL_IMPORTER_INCLUDED
 
-#include <string>
 #include <vector>
+#include <string>
 #include <glm/glm.hpp>
 
 namespace dengine

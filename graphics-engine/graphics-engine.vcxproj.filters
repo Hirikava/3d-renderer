@@ -52,10 +52,12 @@
       <Filter>importing</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="rendering\global_environment.hpp">
+    <ClCompile Include="rendering\global_environment.h">
       <Filter>rendering</Filter>
     </ClCompile>
     <ClCompile Include="application\graphics_engine_application.cpp" />
+    <ClCompile Include="rendering\schemas\simple_rendering_scheme.cpp" />
+    <ClCompile Include="rendering\rendering_tmp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importers\assimp_model_importer.h">
@@ -64,30 +66,27 @@
     <ClInclude Include="importers\model_importer.h">
       <Filter>importing</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\rendering_tmp.hpp">
+    <ClInclude Include="rendering\rendering_tmp.h">
       <Filter>rendering</Filter>
     </ClInclude>
     <ClInclude Include="rendering\camera.hpp">
       <Filter>rendering</Filter>
     </ClInclude>
     <ClInclude Include="application\graphics_engine_application.h" />
+    <ClInclude Include="rendering\schemas\rendering_scheme.h" />
+    <ClInclude Include="rendering\schemas\simple_rendering_scheme.h" />
+    <ClInclude Include="utils\shader_load_util.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.frag">
+    <CopyFileToFolders Include="rendering\shaders\simple.frag">
       <Filter>rendering\shaders</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.vert">
-      <Filter>rendering\shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.frag">
-      <Filter>rendering\shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.vert">
+    <CopyFileToFolders Include="rendering\shaders\simple.vert">
       <Filter>rendering\shaders</Filter>
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <None Include="rendering\shaders\blin-fong\blin-fong.vert" />
-    <None Include="rendering\shaders\blin-fong\blin-fong.frag" />
+    <None Include="rendering\shaders\blin-fong.vert" />
+    <None Include="rendering\shaders\blin-fong.frag" />
   </ItemGroup>
 </Project>

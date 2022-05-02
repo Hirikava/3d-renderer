@@ -132,7 +132,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;assimp-msvc14.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -157,7 +157,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\glfw-build\src\$(Configuration)\;$(SolutionDir)deps\assimp-build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;assimp-msvc14.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -176,28 +176,25 @@
     <ClCompile Include="importers\assimp_model_importer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c" />
-    <ClCompile Include="rendering\global_environment.hpp" />
+    <ClCompile Include="rendering\global_environment.h" />
+    <ClCompile Include="rendering\rendering_tmp.cpp" />
+    <ClCompile Include="rendering\schemas\simple_rendering_scheme.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\graphics_engine_application.h" />
     <ClInclude Include="importers\assimp_model_importer.h" />
     <ClInclude Include="importers\model_importer.h" />
     <ClInclude Include="rendering\camera.hpp" />
-    <ClInclude Include="rendering\rendering_tmp.hpp" />
+    <ClInclude Include="rendering\schemas\rendering_scheme.h" />
+    <ClInclude Include="rendering\rendering_tmp.h" />
+    <ClInclude Include="rendering\schemas\simple_rendering_scheme.h" />
+    <ClInclude Include="utils\shader_load_util.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.frag">
+    <CopyFileToFolders Include="rendering\shaders\simple.frag">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="rendering\shaders\simple-control\simple_3d_rc.vert">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.frag">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="rendering\shaders\simple\simple_3d.vert">
+    <CopyFileToFolders Include="rendering\shaders\simple.vert">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
@@ -212,7 +209,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="rendering\shaders\blin-fong\blin-fong.frag" />
-    <None Include="rendering\shaders\blin-fong\blin-fong.vert" />
+    <None Include="rendering\shaders\blin-fong.frag" />
+    <None Include="rendering\shaders\blin-fong.vert" />
   </ItemGroup>
 </Project>

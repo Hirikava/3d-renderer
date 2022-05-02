@@ -7,7 +7,6 @@ layout (location = 2) in mat4 aModelMatrix; //Instanced
 
 layout (binding = 0) uniform GlobalEnv
 {
-	vec4 uCameraPostion;
 	mat4 uProjectionMatrix;
 	mat4 uViewMatrix;
 };

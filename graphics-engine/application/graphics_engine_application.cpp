@@ -11,9 +11,13 @@
 #include <glm/gtc/type_ptr.hpp>
 //logging
 #include <spdlog/spdlog.h>
-#include <rendering/rendering_tmp.hpp>
+
+//rendering
+#include <rendering/rendering_tmp.h>
 #include <rendering/camera.hpp>
-#include <rendering/global_environment.hpp>
+#include <rendering/global_environment.h>
+
+#include <rendering/schemas/simple_rendering_scheme.h>
 
 const char* OpenGlLoggerName = "opengl_logger";
 const char* AppLoggerName = "app_logger";
@@ -52,16 +56,10 @@ bool dengine::GraphicsEngineApplication::Terminate()
 }
 
 
+struct TransformComponent{
+	glm::mat4 ModelMatrix;
+};
 
-std::pmr::string loadShaderFromFile(const std::pmr::string& filePath)
-{
-	std::fstream fstream;
-	fstream.open(filePath.c_str(), std::fstream::binary | std::fstream::in);
-	std::stringstream ss;
-	ss << fstream.rdbuf();
-	fstream.close();
-	return std::pmr::string(ss.str());
-}
 
 void GLAPIENTRY
 MessageCallback(GLenum source,
@@ -117,86 +115,22 @@ int dengine::GraphicsEngineApplication::RunInternal()
 
 	//set up global environment
 	dengine::GlobalEnvironment globalEnvironment;
-	unsigned int globalEnvironmentUbo;
-	glCreateBuffers(1, &globalEnvironmentUbo);
-	glNamedBufferData(globalEnvironmentUbo, sizeof(dengine::GlobalEnvironment), nullptr, GL_STREAM_DRAW);
-
-	//make instance buffer
-	unsigned int instanceBuffer;
 	glm::mat4 modelMatrix{ 1.0f };
-	glCreateBuffers(1, &instanceBuffer);
-	glNamedBufferData(instanceBuffer, sizeof(glm::mat4), glm::value_ptr(modelMatrix), GL_STREAM_DRAW);
-
-	unsigned int materialsBuffer;
-	glCreateBuffers(1, &materialsBuffer);
-	dengine::SimpleMaterial material{ 1, {0,0,0}, glm::vec4(1.0f,1.0f,1.0f,1.0f) };
-	glNamedBufferData(materialsBuffer, sizeof(dengine::SimpleMaterial), &material, GL_STREAM_DRAW);
 
 	//make vaos
 	for (int i = 0; i < openglModel.Meshes.size(); i++)
 	{
-		auto& openglMesh = openglModel.Meshes[i];
-		unsigned int vbo = openglMesh.Vbo;
-		unsigned int vao;
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-
-		//Positions vertex layout
-		auto positionVertexLayout = openglMesh.GetVertexAttributeLayout(dengine::Positions);
-		glVertexArrayVertexBuffer(vao, 0, vbo, positionVertexLayout.Offset, positionVertexLayout.Stride);
-		glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(vao, 0, 0);
-		glEnableVertexArrayAttrib(vao, 0);
-		//Uvs binding
-		auto uvVertexLayout = openglMesh.GetVertexAttributeLayout(dengine::UVs);
-		glVertexArrayVertexBuffer(vao, 1, vbo, uvVertexLayout.Offset, uvVertexLayout.Stride);
-		glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(vao, 1, 1);
-		glEnableVertexArrayAttrib(vao, 1);
-
-		//Bind instance buffer
-		glVertexArrayVertexBuffer(vao, 2, instanceBuffer, 0, 0);
-		for (int i = 0; i < 4; i++)
-		{
-			glVertexArrayAttribFormat(vao, 2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4) * i);
-			glVertexArrayAttribBinding(vao, 2 + i, 2);
-			glEnableVertexArrayAttrib(vao, 2 + i);
-			glVertexArrayBindingDivisor(vao, 2 + i, 1);
-		}
-
-
-		glVertexArrayElementBuffer(vao, openglMesh.Ebo);
-		glBindBufferRange(GL_UNIFORM_BUFFER, 0, globalEnvironmentUbo, 0, 144);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, materialsBuffer);
-		glBindVertexArray(0);
-
+		auto simpleRenderinUnit = SimpleRenderingScheme::CreateRenderingUnit(openglModel.Meshes[i]);
 		auto entity = registry.create();
-		dengine::RenderingUnit renderingUnit{ vao, openglModel.Materils[openglMesh.MaterialIndex].DiffuseTextureId, openglMesh.NumElements };
-		registry.emplace<dengine::RenderingUnit>(entity, renderingUnit);
+		registry.emplace<SimpleRenderingUnit>(entity, simpleRenderinUnit);
+		registry.emplace<TransformComponent>(entity, modelMatrix);
 	}
 
 	//load shader program and compile it
-	auto vertexShaderSource = loadShaderFromFile("shaders\\simple-control\\simple_3d_rc.vert");
-	auto fragmentShaderSource = loadShaderFromFile("shaders\\simple-control\\simple_3d_rc.frag");
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	unsigned int program = glCreateProgram();
-	const char* vertexShaderSourcePtr = vertexShaderSource.c_str();
-	const char* fragmentShaderSourcePtr = fragmentShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourcePtr, nullptr);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourcePtr, nullptr);
-	glCompileShader(vertexShader);
-	glCompileShader(fragmentShader);
+	dengine::SimpleRenderingScheme simpleRenderingScheme;
+	auto program = simpleRenderingScheme.LoadShaderProgram();
 
-	glAttachShader(program, vertexShader);
-	glAttachShader(program, fragmentShader);
-	glLinkProgram(program);
-	glDetachShader(program, vertexShader);
-	glDetachShader(program, fragmentShader);
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-	glUniformBlockBinding(program, 0, 0);
-	glShaderStorageBlockBinding(program, 0, 0);
+
 	glEnable(GL_DEPTH_TEST);
 
 	//CreateRenderBuffer
@@ -219,6 +153,8 @@ int dengine::GraphicsEngineApplication::RunInternal()
 	ImVec2 currentViewportSize(1920, 1080);
 	ImVec2 tempViewPortSize(1920, 1080);
 
+
+	SimpleRedneringSubmitter simpleRedneringSubmitter;
 
 	bool useDiffuseTexture = true;
 	while (!glfwWindowShouldClose(window))
@@ -250,28 +186,23 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		auto delta = ImGui::GetIO().MouseDelta;
 
-
-
 		int width, height;
 		glfwGetWindowSize(window, &width, &height);
 		auto aspect = static_cast<float>(currentViewportSize.x) / static_cast<float>(currentViewportSize.y);
 		globalEnvironment.CameraPostion = glm::vec4(camera.Position, 1.0f);
 		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 0.01f, 100.0f);
 		globalEnvironment.ViewMatrix = dengine::CameraControl::GetLookAtMatrix(camera);
-		glNamedBufferSubData(globalEnvironmentUbo, 0, sizeof(dengine::GlobalEnvironment), &globalEnvironment);
-		glNamedBufferSubData(materialsBuffer, 0, sizeof(dengine::SimpleMaterial), &material);
 
-		auto view = registry.view<RenderingUnit>();
-		glUseProgram(program);
-		GLuint indices[2] = { 0,1 };
-		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 2, indices);
+		auto view = registry.view<SimpleRenderingUnit, TransformComponent>();
 		for (auto entity : view)
 		{
-			auto renderingUnit = view.get<RenderingUnit>(entity);
-			glBindVertexArray(renderingUnit.Vao);
-			glBindTextureUnit(0, renderingUnit.DiffuseTexture);
-			glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.ElementsCount, GL_UNSIGNED_INT, nullptr, 1);
+			auto renderingUnit = view.get<SimpleRenderingUnit>(entity);
+			auto modelMatrix = view.get<TransformComponent>(entity).ModelMatrix;
+			simpleRedneringSubmitter.Submit(renderingUnit, modelMatrix);
 		}
+
+		simpleRedneringSubmitter.DispatchDrawCall(program, globalEnvironment);
+		simpleRedneringSubmitter.Clear();
 
 		//swap to default framebuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -297,11 +228,6 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		ImGui::ColorPicker3("color", color);
 		ImGui::DragFloat("CameraSpeed", &cameraSpeed, 1.0f, 0, 50);
 		ImGui::DragFloat("CameraRotationSpeed", &cameraRotationSpeed, 0.0001f, 0, 1);
-
-		ImGui::Checkbox("UseDiffuseTexture", &useDiffuseTexture);
-		material.colorSelectorIndex = useDiffuseTexture ? 0 : 1;
-		ImGui::ColorPicker4("Albeido Color", glm::value_ptr(material.baseColor));
-		ImGui::End();
 
 		auto windowFlags = ImGuiWindowFlags_NoScrollbar;
 		ImGui::Begin("Viewport", &open, windowFlags);
