@@ -82,7 +82,7 @@ dengine::SimpleRenderingUnit dengine::SimpleRenderingScheme::CreateRenderingUnit
 	glEnableVertexArrayAttrib(vao, ATTRIBUTE_NORMAL_LOCATION);
 
 	//Bind instance buffer
-	glVertexArrayVertexBuffer(vao, ATTRIBUTE_NORMAL_BINDING, instanceBuffer, 0, sizeof(glm::mat4));
+	glVertexArrayVertexBuffer(vao, ATTRIBUTE_UV_BINDING, instanceBuffer, 0, sizeof(glm::mat4));
 	for (int i = 0; i < 4; i++)
 	{
 		glVertexArrayAttribFormat(vao, ATTRIBUTE_UV_LOCATION + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4) * i);
@@ -136,6 +136,7 @@ void dengine::SimpleRedneringSubmitter::DispatchDrawCall(unsigned programId, Glo
 		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, sizeof(SimpleEnvironmentData), &simpleEnvironmentData); 	//Update global environment
 		glNamedBufferSubData(renderingUnit.InstaciesBuffer, 0, sizeof(SimpleInstanceData) * submitInfo.SimpleInstanceData.size(), &submitInfo.SimpleInstanceData[0]);//Update model matricies
 		glNamedBufferSubData(renderingUnit.MaterialsBuffer, 0, sizeof(SimpleMaterialData) * submitInfo.SimpleMaterialData.size(), &submitInfo.SimpleMaterialData[0]);//Update model materials
+		glBindVertexArray(renderingUnit.Vao);
 		glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.IndeciesSize, GL_UNSIGNED_INT, nullptr, submitInfo.SimpleInstanceData.size());
 	}
 }
