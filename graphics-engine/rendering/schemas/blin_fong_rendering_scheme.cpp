@@ -10,7 +10,8 @@
 constexpr unsigned int AttributePositionLocation = 0;
 constexpr unsigned int AttributeNormalLocation = 1;
 constexpr unsigned int AttributeUVsLocation = 2;
-constexpr unsigned int AttributeModelMatrixBaseLocation = 3;
+constexpr unsigned int AttributeTangentLocation = 3;
+constexpr unsigned int AttributeModelMatrixBaseLocation = 4;
 //UNIFORM BUFFER BINDINGS
 constexpr unsigned int UboEnvironmentsBinding = 0;
 constexpr unsigned int UboLightsBinding = 1;
@@ -77,6 +78,12 @@ dengine::BlinFongRenderingUnit dengine::BlinFongRenderingScheme::CreateRendering
 	glVertexArrayAttribFormat(vao, AttributeUVsLocation, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexArrayAttribBinding(vao, AttributeUVsLocation, 2);
 	glEnableVertexArrayAttrib(vao, AttributeUVsLocation);
+	//tangent binding
+	auto tangentLayout = mesh.GetVertexAttributeLayout(Tangent);
+	glVertexArrayVertexBuffer(vao, AttributeTangentLocation, vbo, tangentLayout.Offset, tangentLayout.Stride);
+	glVertexArrayAttribFormat(vao, AttributeTangentLocation, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribBinding(vao, AttributeTangentLocation, 3);
+	glEnableVertexArrayAttrib(vao, AttributeTangentLocation);
 
 
 	//Bind instance buffer
@@ -103,10 +110,12 @@ dengine::BlinFongRenderingUnit dengine::BlinFongRenderingScheme::CreateRendering
 dengine::BlinFongRenderingSubmiter::BlinFongRenderingSubmiter(OpenglSettings openglSettings) : openglSettings(openglSettings) {}
 
 
-std::pmr::string getBlinFongCacheId(unsigned int vaoId, unsigned int diffuseTextureId)
+std::pmr::string getBlinFongCacheId(unsigned int vaoId, const dengine::Material& material)
 {
 	std::stringstream ss;
-	ss << "vao:{" << vaoId << "}" << "-" << "diffuseTexture: {" << diffuseTextureId << "}";
+	ss << "vao:{" << vaoId << "}" << "-" << "diffuseTexture:{"
+		<< material.DiffuseTextureIndex << "}" << "-" << "normalTexture:{"
+		<< material.NormalTextureIndex << "}";
 	return std::pmr::string(ss.str());
 }
 
@@ -114,12 +123,13 @@ std::pmr::string getBlinFongCacheId(unsigned int vaoId, unsigned int diffuseText
 void dengine::BlinFongRenderingSubmiter::Submit(BlinFongRenderingUnit renderingUnit, Material material,
                                                 glm::mat4 modelMatrix)
 {
-	auto cacheId = getBlinFongCacheId(renderingUnit.Vao, material.DiffuseTextureIndex);
+	auto cacheId = getBlinFongCacheId(renderingUnit.Vao, material);
 	auto findIter = instancedToDraw.find(cacheId);
 	if (findIter == instancedToDraw.end())
 	{
 		BlinFongSubmitInfo submitInfo{};
 		submitInfo.DiffuseTexture = material.DiffuseTextureIndex;
+		submitInfo.NormalTexture = material.NormalTextureIndex;
 		instancedToDraw[cacheId] = {renderingUnit, submitInfo};
 	}
 	auto& drawInstance = instancedToDraw[cacheId];
@@ -152,6 +162,7 @@ void dengine::BlinFongRenderingSubmiter::DispatchDrawCall(unsigned programId,
 		auto& renderingUnit = index.second.first;
 
 		glBindTextureUnit(0, index.second.second.DiffuseTexture);
+		glBindTextureUnit(1, index.second.second.NormalTexture);
 		LightsSettings lightsSettings = blinFongEnvironmentData.LightsSettings;
 		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, offsetof(BlinFongEnvironmentData, LightsSettings), &blinFongEnvironmentData);
 		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, openglSettings.uniformAlignment, sizeof(LightsSettings), &lightsSettings);

@@ -118,6 +118,7 @@ void dengine::AssimpModelImporter::processNode(const aiNode* node, const aiScene
 dengine::Mesh dengine::AssimpModelImporter::processMesh(const aiMesh* mesh, const aiScene* scene)
 {
 	std::pmr::vector<glm::vec3> positions(mesh->mNumVertices);
+	std::pmr::vector<glm::vec3> tangents(mesh->mNumVertices);
 	std::pmr::vector<glm::vec3> normals(mesh->mNumVertices);
 	std::pmr::vector<glm::vec2> uvs(mesh->mNumVertices);
 
@@ -125,6 +126,7 @@ dengine::Mesh dengine::AssimpModelImporter::processMesh(const aiMesh* mesh, cons
 	const unsigned cmpSize = mesh->mNumVertices * sizeof(glm::vec3);
 	memcpy(&positions[0], mesh->mVertices, mesh->mNumVertices * sizeof(glm::vec3)); //copy positions
 	memcpy(&normals[0], mesh->mNormals, cmpSize); //copy normals
+	memcpy(&tangents[0], mesh->mTangents, cmpSize); //copy normals
 	for (int i = 0; i < mesh->mNumVertices; i++) //copy UVs
 		uvs[i] = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 
@@ -146,6 +148,7 @@ dengine::Mesh dengine::AssimpModelImporter::processMesh(const aiMesh* mesh, cons
 	return Mesh{
 		positions,
 		normals,
+		tangents,
 		uvs,
 		indecies,
 		mesh->mMaterialIndex,

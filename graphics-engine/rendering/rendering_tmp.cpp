@@ -5,7 +5,7 @@
 unsigned dengine::calculateBufferSize(const Mesh& mesh)
 {
 	return mesh.Positions.size() * sizeof(glm::vec3) + mesh.Normals.size() * sizeof(glm::vec3) + mesh.UVs.size() *
-		sizeof(glm::vec2);
+		sizeof(glm::vec2) + mesh.Tangents.size() * sizeof(glm::vec3);
 }
 
 
@@ -70,6 +70,10 @@ dengine::OpenglModel dengine::loadModelToGpu(const Model& model)
 		glNamedBufferSubData(*vboPtr, offset, mesh.UVs.size() * sizeof(glm::vec2), &mesh.UVs[0]);
 		vertexLayouts[UVs] = VertexLayout{sizeof(glm::vec2), offset, mesh.UVs.size() * sizeof(glm::vec2)};
 		offset += mesh.UVs.size() * sizeof(glm::vec2);
+		//load tangents
+		glNamedBufferSubData(*vboPtr, offset, mesh.UVs.size() * sizeof(glm::vec2), &mesh.UVs[0]);
+		vertexLayouts[UVs] = VertexLayout{ sizeof(glm::vec3), offset, mesh.Tangents.size() * sizeof(glm::vec3) };
+		offset += mesh.Tangents.size() * sizeof(glm::vec3);
 		//load elements
 		glNamedBufferData(*eboPtr, mesh.Indecies.size() * sizeof(unsigned), &mesh.Indecies[0], GL_STATIC_DRAW);
 		bufferedMeshes.push_back(BufferedMesh{

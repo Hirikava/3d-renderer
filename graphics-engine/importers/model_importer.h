@@ -22,6 +22,7 @@ namespace dengine
 	struct Mesh {
 		std::pmr::vector<glm::vec3> Positions;
 		std::pmr::vector<glm::vec3> Normals;
+		std::pmr::vector<glm::vec3> Tangents;
 		std::pmr::vector<glm::vec2> UVs;
 		std::pmr::vector<unsigned int> Indecies;
 		unsigned int MaterialIndex;
@@ -29,6 +30,7 @@ namespace dengine
 
 	struct Material{
 		int DiffuseTextureIndex {-1};
+		int NormalTextureIndex {-1};
 	};
 
 	struct Model{

@@ -5,9 +5,11 @@ in VS_OUT {
 	vec2 uv;
 	vec3 cameraPos;
 	vec3 fragPos;
+	mat3 TBN;
 } fsIn;
 
 layout (binding = 0) uniform sampler2D sDiffuseMap;
+layout (binding = 1) uniform sampler2D sNormalMap;
 
 layout (binding = 1) uniform LightsSettings
 {
@@ -34,7 +36,9 @@ void main()
 {
 	//ambient component
 	vec3 ambientImpact = lightsSettings.uAmbientStrength * vec3(1, 1, 1);
-	vec3 norm = normalize(fsIn.normal);
+	vec3 norm = texture(sNormalMap, fsIn.uv).rgb;
+	norm = norm * 2.0 - 1.0;   
+	norm = normalize(fsIn.TBN * norm); 
 	vec3 viewDir = normalize(fsIn.cameraPos - fsIn.fragPos);
 
 	vec3 tmpDiffuseImpact = vec3(0,0,0);

@@ -12,6 +12,7 @@ namespace dengine
 		Positions = 0,
 		Normals = 1,
 		UVs = 2,
+		Tangent = 3,
 	};
 
 	struct VertexLayout {
