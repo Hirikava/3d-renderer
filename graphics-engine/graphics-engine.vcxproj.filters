@@ -81,15 +81,13 @@
     <ClInclude Include="rendering\schemas\blin_fong_rendering_scheme.h" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="rendering\shaders\simple.frag">
-      <Filter>rendering\shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="rendering\shaders\simple.vert">
-      <Filter>rendering\shaders</Filter>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="rendering\shaders\blin-fong.vert" />
     <None Include="rendering\shaders\blin-fong.frag" />
+    <None Include="rendering\shaders\simple.frag">
+      <Filter>rendering\shaders</Filter>
+    </None>
+    <None Include="rendering\shaders\simple.vert">
+      <Filter>rendering\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

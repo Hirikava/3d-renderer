@@ -194,12 +194,12 @@
     <ClInclude Include="utils\shader_load_utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="rendering\shaders\simple.frag">
+    <None Include="rendering\shaders\simple.frag">
       <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="rendering\shaders\simple.vert">
+    </None>
+    <None Include="rendering\shaders\simple.vert">
       <FileType>Document</FileType>
-    </CopyFileToFolders>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
