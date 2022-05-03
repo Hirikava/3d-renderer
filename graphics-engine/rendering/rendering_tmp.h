@@ -23,6 +23,11 @@ namespace dengine
 	struct LoadedMaterial{
 		int DiffuseTextureId;
 		int NormalTextureId;
+		int SpecularTextureId;
+	};
+
+	struct OpenglSettings{
+		int uniformAlignment;
 	};
 
 

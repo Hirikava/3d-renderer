@@ -6,11 +6,20 @@
 
 namespace dengine
 {
+
+	struct LightInfo{
+		glm::vec4 Position;
+		glm::vec4 Color;
+	};
+
 	struct GlobalEnvironment{
 		glm::vec4 CameraPostion;
 		glm::mat4 ProjectionMatrix;
 		glm::mat4 ViewMatrix;
-		std::pmr::vector<glm::vec4> LightsPositions;
+		std::pmr::vector<LightInfo> Lights;
+		float AmbientStrength;
+		float DiffuseStrength;
+		float SpecularStrength;
 	};
 }
 

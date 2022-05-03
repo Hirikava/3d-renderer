@@ -13,6 +13,7 @@ constexpr unsigned int AttributeUVsLocation = 2;
 constexpr unsigned int AttributeModelMatrixBaseLocation = 3;
 //UNIFORM BUFFER BINDINGS
 constexpr unsigned int UboEnvironmentsBinding = 0;
+constexpr unsigned int UboLightsBinding = 1;
 //SHADER STORAGE BUFFER BINDINGS
 constexpr unsigned int SsboLightsInfosBinding = 0;
 
@@ -21,12 +22,22 @@ unsigned dengine::BlinFongRenderingScheme::LoadShaderProgram()
 {
 	auto program = uploadAndCompileShaders("shaders/blin-fong.vert", "shaders/blin-fong.frag");
 	glUniformBlockBinding(program, 0, UboEnvironmentsBinding);
+	glUniformBlockBinding(program, 1, UboLightsBinding);
 	glShaderStorageBlockBinding(program, 0, SsboLightsInfosBinding);
 	return program;
 }
 
+std::pair<int, int> calculateSizeAndOffset(const dengine::OpenglSettings openglSettings)
+{
+	auto envSize = offsetof(dengine::BlinFongEnvironmentData, LightsSettings);
+	auto lightSettingSize = sizeof(dengine::LightsSettings);
+	auto envAlignCount = (envSize / openglSettings.uniformAlignment);
+	envAlignCount += sizeof(dengine::BlinFongEnvironmentData) % openglSettings.uniformAlignment == 0 ? 0 : 1;
+	return { envAlignCount * openglSettings.uniformAlignment + lightSettingSize,
+		envAlignCount * openglSettings.uniformAlignment};
+}
 
-dengine::BlinFongRenderingUnit dengine::BlinFongRenderingScheme::CreateRenderingUnit(const BufferedMesh& mesh)
+dengine::BlinFongRenderingUnit dengine::BlinFongRenderingScheme::CreateRenderingUnit(const BufferedMesh& mesh, OpenglSettings openglSettings)
 {
 	unsigned int vbo = mesh.Vbo;
 	unsigned int vao;
@@ -37,9 +48,11 @@ dengine::BlinFongRenderingUnit dengine::BlinFongRenderingScheme::CreateRendering
 	unsigned int environmentBuffer = buffers[1];
 	unsigned int lightsBuffer = buffers[2];
 
+
+	auto sizeAndOffset = calculateSizeAndOffset(openglSettings);
 	//InitializeBuffers
 	glNamedBufferData(instanceBuffer, sizeof(BlinFongInstanceData) * 16, nullptr, GL_STREAM_DRAW);
-	glNamedBufferData(environmentBuffer, sizeof(BlinFongEnvironmentData), nullptr, GL_STREAM_DRAW);
+	glNamedBufferData(environmentBuffer, openglSettings.uniformAlignment + sizeof(LightsSettings), nullptr, GL_STREAM_DRAW);
 	glNamedBufferData(lightsBuffer, sizeof(BlinFongLightsInfo), nullptr, GL_STREAM_DRAW);
 
 	glGenVertexArrays(1, &vao);
@@ -75,14 +88,19 @@ dengine::BlinFongRenderingUnit dengine::BlinFongRenderingScheme::CreateRendering
 		glEnableVertexArrayAttrib(vao, AttributeModelMatrixBaseLocation + i);
 		glVertexArrayBindingDivisor(vao, AttributeModelMatrixBaseLocation + i, 1);
 	}
-
 	glVertexArrayElementBuffer(vao, mesh.Ebo);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, environmentBuffer);
+
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, UboEnvironmentsBinding, environmentBuffer, 0, openglSettings.uniformAlignment);
+	glBindBufferRange(GL_UNIFORM_BUFFER, UboLightsBinding, environmentBuffer, openglSettings.uniformAlignment, sizeof(LightsSettings));
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, lightsBuffer);
 	glBindVertexArray(0);
 
 	return BlinFongRenderingUnit{vao, mesh.NumElements, instanceBuffer, environmentBuffer, lightsBuffer};
 }
+
+
+dengine::BlinFongRenderingSubmiter::BlinFongRenderingSubmiter(OpenglSettings openglSettings) : openglSettings(openglSettings) {}
 
 
 std::pmr::string getBlinFongCacheId(unsigned int vaoId, unsigned int diffuseTextureId)
@@ -115,31 +133,46 @@ void dengine::BlinFongRenderingSubmiter::DispatchDrawCall(unsigned programId,
 	glUseProgram(programId);
 
 	BlinFongLightsInfo lightsInfo;
-	lightsInfo.Info.Count = environment.LightsPositions.size();
-	memcpy(lightsInfo.LightsPositions, &environment.LightsPositions[0],
-	       environment.LightsPositions.size() * sizeof(glm::vec4));
+	lightsInfo.Info.Count = environment.Lights.size();
+	memcpy(lightsInfo.LightsInfos, &environment.Lights[0],
+	       environment.Lights.size() * sizeof(LightInfo));
 
+	BlinFongEnvironmentData blinFongEnvironmentData;
+	blinFongEnvironmentData.CameraPosition = environment.CameraPostion;
+	blinFongEnvironmentData.ProjectionMatrix = environment.ProjectionMatrix;
+	blinFongEnvironmentData.ViewMatrix = environment.ViewMatrix;
+	blinFongEnvironmentData.LightsSettings = LightsSettings{ environment.AmbientStrength, environment.DiffuseStrength, environment.SpecularStrength };
+	auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	//submit
+
+	auto offsetAndAlignment = calculateSizeAndOffset(openglSettings);
 	for (auto& index : instancedToDraw)
 	{
 		auto& submitInfo = index.second.second;
 		auto& renderingUnit = index.second.first;
 
 		glBindTextureUnit(0, index.second.second.DiffuseTexture);
-		//Update draw info
-		BlinFongEnvironmentData blinFongEnvironmentData{
-			environment.CameraPostion, environment.ProjectionMatrix, environment.ViewMatrix
-		};
-		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, sizeof(BlinFongEnvironmentData),
-		                     &blinFongEnvironmentData);
-		//Update global environment
+		LightsSettings lightsSettings = blinFongEnvironmentData.LightsSettings;
+		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, offsetof(BlinFongEnvironmentData, LightsSettings), &blinFongEnvironmentData);
+		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, openglSettings.uniformAlignment, sizeof(LightsSettings), &lightsSettings);
 		glNamedBufferSubData(renderingUnit.InstaciesBuffer, 0,
 		                     sizeof(BlinFongInstanceData) * submitInfo.InstanceDatas.size(),
 		                     &submitInfo.InstanceDatas[0]); //Update model matricies
-		glNamedBufferSubData(renderingUnit.LightsBuffer, 0, sizeof(BlinFongLightsInfo), &lightsInfo);
-		//Update lights information
+		glNamedBufferSubData(renderingUnit.LightsBuffer, 0, sizeof(BlinFongLightsInfo), &lightsInfo);//Update lights information
+	}
+	glWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
+	glDeleteSync(sync);
+	//render
+	
+	for (auto& index : instancedToDraw)
+	{
+		auto& submitInfo = index.second.second;
+		auto& renderingUnit = index.second.first;
+
+		glBindTextureUnit(0, index.second.second.DiffuseTexture);
 		glBindVertexArray(renderingUnit.Vao);
 		glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.IndeciesSize, GL_UNSIGNED_INT, nullptr,
-		                        submitInfo.InstanceDatas.size());
+			submitInfo.InstanceDatas.size());
 	}
 }
 

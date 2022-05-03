@@ -12,12 +12,14 @@
 
 namespace dengine
 {
+
+
 	struct BlinFongLightsInfo{
 		struct Info{
 			int Count;
 			int padding[3];
 		} Info;
-		glm::vec4 LightsPositions[512];
+		LightInfo LightsInfos[512];
 	};
 
 
@@ -25,10 +27,20 @@ namespace dengine
 		glm::mat4 ModelMatrix;
 	};
 
+
+	struct LightsSettings {
+		float AmbientStrength;
+		float DiffuseStrength;
+		float SpecularStrength;
+		float padding;
+	};
+
+
 	struct BlinFongEnvironmentData {
 		glm::vec4 CameraPosition;
 		glm::mat4 ProjectionMatrix;
 		glm::mat4 ViewMatrix;
+		LightsSettings LightsSettings;
 	};
 
 
@@ -57,17 +69,19 @@ namespace dengine
 	class BlinFongRenderingScheme : public IRenderingScheme{
 	public:
 		unsigned LoadShaderProgram() override;
-		static BlinFongRenderingUnit CreateRenderingUnit(const BufferedMesh& mesh);
+		static BlinFongRenderingUnit CreateRenderingUnit(const BufferedMesh& mesh, OpenglSettings openglSettings);
 	};
 
 
 	class BlinFongRenderingSubmiter {
 	public:
+		explicit BlinFongRenderingSubmiter(OpenglSettings openglSettings);
 		void Submit(BlinFongRenderingUnit renderingUnit, Material material, glm::mat4 modelMatrix);
 		void DispatchDrawCall(unsigned programId, const GlobalEnvironment& environment) const;
 		void Clear();
 	private:
 		std::unordered_map<std::pmr::string, std::pair<BlinFongRenderingUnit, BlinFongSubmitInfo>> instancedToDraw;
+		OpenglSettings openglSettings;
 	};
 }
 

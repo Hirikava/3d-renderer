@@ -16,7 +16,6 @@
 #include <rendering/rendering_tmp.h>
 #include <rendering/camera.hpp>
 #include <rendering/global_environment.h>
-
 #include <rendering/schemas/blin_fong_rendering_scheme.h>
 
 const char* OpenGlLoggerName = "opengl_logger";
@@ -60,6 +59,11 @@ bool dengine::GraphicsEngineApplication::Terminate()
 
 struct TransformComponent{
 	glm::mat4 ModelMatrix;
+};
+
+struct LightComponent{
+	glm::vec4 Position;
+	glm::vec4 Color;
 };
 
 
@@ -113,18 +117,17 @@ int dengine::GraphicsEngineApplication::RunInternal()
 	model.Meshes.clear();
 	model.Textures.clear();
 
-	//set up global environment
-	GlobalEnvironment globalEnvironment;
-	globalEnvironment.LightsPositions.push_back(glm::vec4(-10, -10, -10, 0));
-	glm::mat4 modelMatrix{1.0f};
+	int uniformBufferAlignment;
+	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBufferAlignment);
+	OpenglSettings openglSettings{ uniformBufferAlignment };
 
 	//make vaos
 	for (int i = 0; i < openglModel.Meshes.size(); i++)
 	{
-		auto simpleRenderinUnit = BlinFongRenderingScheme::CreateRenderingUnit(openglModel.Meshes[i]);
+		auto simpleRenderinUnit = BlinFongRenderingScheme::CreateRenderingUnit(openglModel.Meshes[i], openglSettings);
 		auto entity = registry.create();
 		registry.emplace<BlinFongRenderingUnit>(entity, simpleRenderinUnit);
-		registry.emplace<TransformComponent>(entity, modelMatrix);
+		registry.emplace<TransformComponent>(entity, glm::mat4{1.0f});
 		registry.emplace<Material>(entity, Material{ openglModel.Materils[openglModel.Meshes[i].MaterialIndex].DiffuseTextureId });
 	}
 
@@ -155,10 +158,19 @@ int dengine::GraphicsEngineApplication::RunInternal()
 	ImVec2 currentViewportSize(1920, 1080);
 	ImVec2 tempViewPortSize(1920, 1080);
 
+	//set up global environment
+	GlobalEnvironment globalEnvironment;
+	BlinFongRenderingSubmiter renderingSubmitter(openglSettings);
 
-	BlinFongRenderingSubmiter renderingSubmitter;
+	auto lightEntity = registry.create();
+	auto startLightComponent = LightComponent{ glm::vec4(10,10,10,0), glm::vec4(1.0f,1.0f,1.0f,1.0f) };
+	registry.emplace<LightComponent>(lightEntity, startLightComponent);
 
-	bool useDiffuseTexture = true;
+	globalEnvironment.DiffuseStrength = 1.0f;
+	globalEnvironment.SpecularStrength = 5.0f;
+	globalEnvironment.AmbientStrength = 0.1f;
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		float newTime = glfwGetTime();
@@ -195,17 +207,21 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 0.01f, 100.0f);
 		globalEnvironment.ViewMatrix = CameraControl::GetLookAtMatrix(camera);
 
-		auto view = registry.view<BlinFongRenderingUnit, TransformComponent, Material>();
-		for (auto entity : view)
+		auto drawView = registry.view<BlinFongRenderingUnit, TransformComponent, Material>();
+		for (auto entity : drawView)
 		{
-			auto renderingUnit = view.get<BlinFongRenderingUnit>(entity);
-			auto material = view.get<Material>(entity);
-			auto modelMatrix1 = glm::mat4(1.0f);
-			auto modelMatrix2 = translate(glm::mat4(1.0f), glm::vec3(4.0f, 4.0f, 0));
-			renderingSubmitter.Submit(renderingUnit, material, modelMatrix1);
-			renderingSubmitter.Submit(renderingUnit, material, modelMatrix2);
+			auto renderingUnit = drawView.get<BlinFongRenderingUnit>(entity);
+			auto material = drawView.get<Material>(entity);
+			renderingSubmitter.Submit(renderingUnit, material, glm::mat4(1.0f));
 		}
 
+		auto view = registry.view<LightComponent>();
+		globalEnvironment.Lights.clear();
+		for (auto entity : view)
+		{
+			auto lightComponent = view.get<LightComponent>(entity);
+			globalEnvironment.Lights.push_back(LightInfo{ lightComponent.Position, lightComponent.Color });
+		}
 		renderingSubmitter.DispatchDrawCall(program, globalEnvironment);
 		renderingSubmitter.Clear();
 
@@ -218,8 +234,7 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		ImGui::SetNextWindowSize(viewport->WorkSize);
 		ImGui::SetNextWindowViewport(viewport->ID);
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		bool open = true;
 		ImGui::Begin("Global", &open, window_flags);
@@ -228,15 +243,25 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		ImGui::End();
 
 
-		ImGui::Begin("New world!");
-
+		ImGui::Begin("control panel");
 		//Start New ImGui frame
-		ImGui::ColorPicker3("color", color);
-		ImGui::DragFloat("CameraSpeed", &cameraSpeed, 1.0f, 0, 50);
-		ImGui::DragFloat("CameraRotationSpeed", &cameraRotationSpeed, 0.0001f, 0, 1);
+		ImGui::ColorPicker3("background color", color);
+		ImGui::DragFloat("camera move speed", &cameraSpeed, 1.0f, 0, 50);
+		ImGui::DragFloat("camera rotation speed", &cameraRotationSpeed, 0.0001f, 0, 1);
+		auto& lightComponent = registry.get<LightComponent>(lightEntity);
+		ImGui::DragFloat4("light position", glm::value_ptr(lightComponent.Position));
+		ImGui::DragFloat4("light color", glm::value_ptr(lightComponent.Color));
+
+		ImGui::End();
+
+		ImGui::Begin("Blin-Fong settings");
+		ImGui::DragFloat("ambient stenght", &globalEnvironment.AmbientStrength, 0.1);
+		ImGui::DragFloat("diffuse stenght", &globalEnvironment.DiffuseStrength, 0.1);
+		ImGui::DragFloat("specular stenght", &globalEnvironment.SpecularStrength, 0.1);
+		ImGui::End();
 
 		auto windowFlags = ImGuiWindowFlags_NoScrollbar;
-		ImGui::Begin("Viewport", &open, windowFlags);
+		ImGui::Begin("viewport", &open, windowFlags);
 		tempViewPortSize = ImGui::GetWindowSize();
 		if (ImGui::IsWindowFocused())
 		{
