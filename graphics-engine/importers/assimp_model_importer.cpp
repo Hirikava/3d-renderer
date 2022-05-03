@@ -99,9 +99,14 @@ std::pmr::vector<dengine::Material> dengine::AssimpModelImporter::loadMaterials(
 		if (aiMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
 		{
 			aiString textureName;
+			//get diffuse texture
 			aiMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &textureName);
-			const auto index = scene->GetEmbeddedTextureAndIndex(textureName.C_Str());
-			materials.push_back(Material{index.second});
+			const auto diffuseTextureIndex = scene->GetEmbeddedTextureAndIndex(textureName.C_Str());
+
+			//get normal texture
+			aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &textureName);
+			const auto normalTextureIndex = scene->GetEmbeddedTextureAndIndex(textureName.C_Str());
+			materials.push_back(Material{diffuseTextureIndex.second, normalTextureIndex.second});
 		}
 	}
 	return materials;

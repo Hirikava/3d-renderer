@@ -36,17 +36,17 @@ void main()
 {
 	//ambient component
 	vec3 ambientImpact = lightsSettings.uAmbientStrength * vec3(1, 1, 1);
-	vec3 norm = texture(sNormalMap, fsIn.uv).rgb;
-	norm = norm * 2.0 - 1.0;   
-	norm = normalize(fsIn.TBN * norm); 
-	vec3 viewDir = normalize(fsIn.cameraPos - fsIn.fragPos);
+    vec3 norm = texture(sNormalMap, fsIn.uv).rgb;
+    norm = normalize(norm * 2.0 - 1.0);   
+   
+    vec3 viewDir  = fsIn.TBN * normalize(fsIn.cameraPos - fsIn.fragPos);  
 
 	vec3 tmpDiffuseImpact = vec3(0,0,0);
 	vec3 tmpSpecularImpact = vec3(0,0,0);
 	for (int i = 0; i < lightsCount; i++)
 	{
 		LightInfo lightInfo = lights[i];
-		vec3 lightDir = normalize(lightInfo.Position.xyz - fsIn.fragPos);
+		vec3 lightDir = fsIn.TBN * normalize(lightInfo.Position.xyz - fsIn.fragPos);
 		//add duffisue component
 		float diffuseImpact = max(dot(norm, lightDir), 0);
 		tmpDiffuseImpact += diffuseImpact * lightInfo.Color.xyz;

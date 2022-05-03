@@ -128,7 +128,11 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		auto entity = registry.create();
 		registry.emplace<BlinFongRenderingUnit>(entity, simpleRenderinUnit);
 		registry.emplace<TransformComponent>(entity, glm::mat4{1.0f});
-		registry.emplace<Material>(entity, Material{ openglModel.Materils[openglModel.Meshes[i].MaterialIndex].DiffuseTextureId });
+		Material material{
+			openglModel.Materils[openglModel.Meshes[i].MaterialIndex].DiffuseTextureId,
+			openglModel.Materils[openglModel.Meshes[i].MaterialIndex].NormalTextureId
+		};
+		registry.emplace<Material>(entity, material);
 	}
 
 	//load shader program and compile it

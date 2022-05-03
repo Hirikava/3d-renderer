@@ -12,7 +12,7 @@ namespace dengine
 		Positions = 0,
 		Normals = 1,
 		UVs = 2,
-		Tangent = 3,
+		Tangents = 3,
 	};
 
 	struct VertexLayout {
@@ -24,7 +24,6 @@ namespace dengine
 	struct LoadedMaterial{
 		int DiffuseTextureId;
 		int NormalTextureId;
-		int SpecularTextureId;
 	};
 
 	struct OpenglSettings{

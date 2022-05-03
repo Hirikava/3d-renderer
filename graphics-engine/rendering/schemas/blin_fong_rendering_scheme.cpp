@@ -78,8 +78,8 @@ dengine::BlinFongRenderingUnit dengine::BlinFongRenderingScheme::CreateRendering
 	glVertexArrayAttribFormat(vao, AttributeUVsLocation, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexArrayAttribBinding(vao, AttributeUVsLocation, 2);
 	glEnableVertexArrayAttrib(vao, AttributeUVsLocation);
-	//tangent binding
-	auto tangentLayout = mesh.GetVertexAttributeLayout(Tangent);
+	//tangents binding
+	auto tangentLayout = mesh.GetVertexAttributeLayout(Tangents);
 	glVertexArrayVertexBuffer(vao, AttributeTangentLocation, vbo, tangentLayout.Offset, tangentLayout.Stride);
 	glVertexArrayAttribFormat(vao, AttributeTangentLocation, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexArrayAttribBinding(vao, AttributeTangentLocation, 3);
@@ -152,17 +152,15 @@ void dengine::BlinFongRenderingSubmiter::DispatchDrawCall(unsigned programId,
 	blinFongEnvironmentData.ProjectionMatrix = environment.ProjectionMatrix;
 	blinFongEnvironmentData.ViewMatrix = environment.ViewMatrix;
 	blinFongEnvironmentData.LightsSettings = LightsSettings{ environment.AmbientStrength, environment.DiffuseStrength, environment.SpecularStrength };
-	auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-	//submit
 
+	//load data to gpu
+	auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 	auto offsetAndAlignment = calculateSizeAndOffset(openglSettings);
 	for (auto& index : instancedToDraw)
 	{
 		auto& submitInfo = index.second.second;
 		auto& renderingUnit = index.second.first;
 
-		glBindTextureUnit(0, index.second.second.DiffuseTexture);
-		glBindTextureUnit(1, index.second.second.NormalTexture);
 		LightsSettings lightsSettings = blinFongEnvironmentData.LightsSettings;
 		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, offsetof(BlinFongEnvironmentData, LightsSettings), &blinFongEnvironmentData);
 		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, openglSettings.uniformAlignment, sizeof(LightsSettings), &lightsSettings);
@@ -173,14 +171,15 @@ void dengine::BlinFongRenderingSubmiter::DispatchDrawCall(unsigned programId,
 	}
 	glWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
 	glDeleteSync(sync);
-	//render
-	
+
+	//render all
 	for (auto& index : instancedToDraw)
 	{
 		auto& submitInfo = index.second.second;
 		auto& renderingUnit = index.second.first;
 
 		glBindTextureUnit(0, index.second.second.DiffuseTexture);
+		glBindTextureUnit(1, index.second.second.NormalTexture);
 		glBindVertexArray(renderingUnit.Vao);
 		glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.IndeciesSize, GL_UNSIGNED_INT, nullptr,
 			submitInfo.InstanceDatas.size());
