@@ -10,6 +10,7 @@ in VS_OUT {
 
 layout (binding = 0) uniform sampler2D sDiffuseMap;
 layout (binding = 1) uniform sampler2D sNormalMap;
+layout (binding = 2) uniform sampler2D sMetalnessMap;
 
 struct LightSettings
 {	
@@ -59,7 +60,7 @@ void main()
 		//add specular component
 		vec3 reflectDir = reflect(-lightDir, norm);
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), lightsInfo.settings.SpecularPower);
-		tmpSpecularImpact = spec * lightInfo.Color.xyz;
+		tmpSpecularImpact = spec * lightInfo.Color.xyz * texture(sMetalnessMap, fsIn.uv).b;
 	}
 
 	vec4 baseColor = texture(sDiffuseMap, fsIn.uv);

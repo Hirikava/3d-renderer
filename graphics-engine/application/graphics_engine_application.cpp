@@ -130,7 +130,8 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		registry.emplace<TransformComponent>(entity, glm::mat4{1.0f});
 		Material material{
 			openglModel.Materils[openglModel.Meshes[i].MaterialIndex].DiffuseTextureId,
-			openglModel.Materils[openglModel.Meshes[i].MaterialIndex].NormalTextureId
+			openglModel.Materils[openglModel.Meshes[i].MaterialIndex].NormalTextureId,
+			openglModel.Materils[openglModel.Meshes[i].MaterialIndex].MetalnessTextureId,
 		};
 		registry.emplace<Material>(entity, material);
 	}

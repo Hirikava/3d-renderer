@@ -115,7 +115,8 @@ std::pmr::string getBlinFongCacheId(unsigned int vaoId, const dengine::Material&
 	std::stringstream ss;
 	ss << "vao:{" << vaoId << "}" << "-" << "diffuseTexture:{"
 		<< material.DiffuseTextureIndex << "}" << "-" << "normalTexture:{"
-		<< material.NormalTextureIndex << "}";
+		<< material.NormalTextureIndex << "}" << "-" << "metalinessTexture:{" 
+		<< material.MetalnessTextureIndex << "}";
 	return std::pmr::string(ss.str());
 }
 
@@ -130,6 +131,7 @@ void dengine::BlinFongRenderingSubmiter::Submit(BlinFongRenderingUnit renderingU
 		BlinFongSubmitInfo submitInfo{};
 		submitInfo.DiffuseTexture = material.DiffuseTextureIndex;
 		submitInfo.NormalTexture = material.NormalTextureIndex;
+		submitInfo.MetalnessTexture = material.MetalnessTextureIndex;
 		instancedToDraw[cacheId] = {renderingUnit, submitInfo};
 	}
 	auto& drawInstance = instancedToDraw[cacheId];
@@ -180,6 +182,7 @@ void dengine::BlinFongRenderingSubmiter::DispatchDrawCall(unsigned programId,
 
 		glBindTextureUnit(0, index.second.second.DiffuseTexture);
 		glBindTextureUnit(1, index.second.second.NormalTexture);
+		glBindTextureUnit(2, index.second.second.MetalnessTexture);
 		glBindVertexArray(renderingUnit.Vao);
 		glDrawElementsInstanced(GL_TRIANGLES, renderingUnit.IndeciesSize, GL_UNSIGNED_INT, nullptr,
 			submitInfo.InstanceDatas.size());
