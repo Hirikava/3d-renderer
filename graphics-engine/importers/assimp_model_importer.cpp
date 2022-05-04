@@ -106,7 +106,12 @@ std::pmr::vector<dengine::Material> dengine::AssimpModelImporter::loadMaterials(
 			//get normal texture
 			aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &textureName);
 			const auto normalTextureIndex = scene->GetEmbeddedTextureAndIndex(textureName.C_Str());
-			materials.push_back(Material{diffuseTextureIndex.second, normalTextureIndex.second});
+
+			//get normal texture
+			aiMaterial->GetTexture(aiTextureType_METALNESS, 0, &textureName);
+			const auto metalnessTexture = scene->GetEmbeddedTextureAndIndex(textureName.C_Str());
+
+			materials.push_back(Material{ diffuseTextureIndex.second, normalTextureIndex.second, metalnessTexture.second });
 		}
 	}
 	return materials;

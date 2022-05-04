@@ -31,6 +31,7 @@ namespace dengine
 	struct Material{
 		int DiffuseTextureIndex {-1};
 		int NormalTextureIndex {-1};
+		int MetalnessTextureIndex{ -1 };
 	};
 
 	struct Model{

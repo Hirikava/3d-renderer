@@ -12,8 +12,6 @@
 
 namespace dengine
 {
-
-
 	struct BlinFongLightsInfo{
 		struct Info{
 			int Count;
@@ -62,6 +60,7 @@ namespace dengine
 
 		int DiffuseTexture{ -1 };
 		int NormalTexture{ -1 };
+		int MetalnessTexture{ -1 };
 		std::pmr::vector<BlinFongInstanceData> InstanceDatas;
 	};
 

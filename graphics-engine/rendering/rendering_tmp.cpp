@@ -18,7 +18,7 @@ std::pmr::vector<dengine::LoadedMaterial> dengine::loadMaterialsToGpu(const Mode
 	{
 		auto& texture = model.Textures[material.DiffuseTextureIndex];
 
-		unsigned int diffuseTexture, normalTexture;
+		unsigned int diffuseTexture, normalTexture, metalnessTexture;
 		auto index = loadedTextures.find(material.DiffuseTextureIndex);
 		//load diffuse texture to gpu
 		if (index == loadedTextures.end())
@@ -59,9 +59,30 @@ std::pmr::vector<dengine::LoadedMaterial> dengine::loadMaterialsToGpu(const Mode
 		else
 			normalTexture = index->second;
 
+		index = loadedTextures.find(material.MetalnessTextureIndex);
+		//load normal texture to gpu
+		if (index == loadedTextures.end())
+		{
+			auto& textureToLoad = model.Textures[material.MetalnessTextureIndex];
+			glCreateTextures(GL_TEXTURE_2D, 1, &metalnessTexture);
+			glTextureStorage2D(metalnessTexture, 1, GL_RGBA8, textureToLoad.Width, textureToLoad.Height);
+
+			auto textureFormat = GL_RGBA;
+			glTextureSubImage2D(metalnessTexture, 0, 0, 0, textureToLoad.Width, textureToLoad.Height, textureFormat,
+				GL_UNSIGNED_BYTE, &textureToLoad.Data[0]);
+
+			glTextureParameteri(metalnessTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTextureParameteri(metalnessTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTextureParameteri(metalnessTexture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTextureParameteri(metalnessTexture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		}
+		else
+			normalTexture = index->second;
+
 		materials.push_back(LoadedMaterial{
 			static_cast<int>(diffuseTexture),
-			static_cast<int>(normalTexture)});
+			static_cast<int>(normalTexture),
+		static_cast<int>(metalnessTexture)});
 	}
 	return materials;
 }

@@ -24,6 +24,7 @@ namespace dengine
 	struct LoadedMaterial{
 		int DiffuseTextureId;
 		int NormalTextureId;
+		int MetalnessTextureId;
 	};
 
 	struct OpenglSettings{
