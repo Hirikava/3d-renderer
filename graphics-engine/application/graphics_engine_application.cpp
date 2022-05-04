@@ -111,7 +111,7 @@ void UpdateRotateCamera(dengine::Camera& cam, float xPitch, float yYaw)
 int dengine::GraphicsEngineApplication::RunInternal()
 {
 	//load models
-	auto model = modelImporter.Import("C:\\Users\\TheDAX\\Desktop\\models\\blossom_katana\\scene.gltf");
+	auto model = modelImporter.Import("C:\\Users\\daas\\Desktop\\models\\blossom_katana\\scene.gltf");
 	auto openglModel = loadModelToGpu(model);
 	model.Materials.clear();
 	model.Meshes.clear();
@@ -173,6 +173,7 @@ int dengine::GraphicsEngineApplication::RunInternal()
 	globalEnvironment.DiffuseStrength = 1.0f;
 	globalEnvironment.SpecularStrength = 5.0f;
 	globalEnvironment.AmbientStrength = 0.1f;
+	globalEnvironment.SpecularPower = 32;
 
 
 	while (!glfwWindowShouldClose(window))
@@ -254,14 +255,15 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		ImGui::DragFloat("camera rotation speed", &cameraRotationSpeed, 0.0001f, 0, 1);
 		auto& lightComponent = registry.get<LightComponent>(lightEntity);
 		ImGui::DragFloat4("light position", glm::value_ptr(lightComponent.Position));
-		ImGui::DragFloat4("light color", glm::value_ptr(lightComponent.Color));
+		ImGui::ColorEdit4("light color", glm::value_ptr(lightComponent.Color));
 
 		ImGui::End();
 
 		ImGui::Begin("Blin-Fong settings");
-		ImGui::DragFloat("ambient stenght", &globalEnvironment.AmbientStrength, 0.1);
-		ImGui::DragFloat("diffuse stenght", &globalEnvironment.DiffuseStrength, 0.1);
-		ImGui::DragFloat("specular stenght", &globalEnvironment.SpecularStrength, 0.1);
+		ImGui::DragFloat("ambient strength", &globalEnvironment.AmbientStrength, 0.1);
+		ImGui::DragFloat("diffuse strength", &globalEnvironment.DiffuseStrength, 0.1);
+		ImGui::DragFloat("specular strength", &globalEnvironment.SpecularStrength, 0.1);
+		ImGui::DragInt("specular power", &globalEnvironment.SpecularPower, 1,0,256);
 		ImGui::End();
 
 		auto windowFlags = ImGuiWindowFlags_NoScrollbar;

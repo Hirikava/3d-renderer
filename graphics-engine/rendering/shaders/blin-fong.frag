@@ -11,12 +11,19 @@ in VS_OUT {
 layout (binding = 0) uniform sampler2D sDiffuseMap;
 layout (binding = 1) uniform sampler2D sNormalMap;
 
-layout (binding = 1) uniform LightsSettings
+struct LightSettings
+{	
+	float AmbientStrength;
+	float DiffuseStrength;
+	float SpecularStrength;
+	int SpecularPower;
+};
+
+
+layout (std140, binding = 1) uniform LightsInfo
 {
-	float uAmbientStrength;
-	float uDiffuseStrength;
-	float uSpecularStrength;
-} lightsSettings;
+	LightSettings settings;
+} lightsInfo;
 
 
 struct LightInfo{
@@ -35,7 +42,6 @@ out vec4 outputColor;
 void main()
 {
 	//ambient component
-	vec3 ambientImpact = lightsSettings.uAmbientStrength * vec3(1, 1, 1);
     vec3 norm = texture(sNormalMap, fsIn.uv).rgb;
     norm = normalize(norm * 2.0 - 1.0);   
    
@@ -52,13 +58,13 @@ void main()
 		tmpDiffuseImpact += diffuseImpact * lightInfo.Color.xyz;
 		//add specular component
 		vec3 reflectDir = reflect(-lightDir, norm);
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
+		float spec = pow(max(dot(viewDir, reflectDir), 0.0), lightsInfo.settings.SpecularPower);
 		tmpSpecularImpact = spec * lightInfo.Color.xyz;
 	}
 
 	vec4 baseColor = texture(sDiffuseMap, fsIn.uv);
-	vec4 resultAmbientImpact = vec4(lightsSettings.uAmbientStrength * vec3(1,1,1), 1);
-	vec4 resultDiffuseImpact = vec4(lightsSettings.uDiffuseStrength * tmpDiffuseImpact, 1);
-	vec4 resultSpecularImpact = vec4(lightsSettings.uSpecularStrength * tmpSpecularImpact, 1);
+	vec4 resultAmbientImpact = vec4(lightsInfo.settings.AmbientStrength * vec3(1,1,1), 1);
+	vec4 resultDiffuseImpact = vec4(lightsInfo.settings.DiffuseStrength * tmpDiffuseImpact, 1);
+	vec4 resultSpecularImpact = vec4(lightsInfo.settings.SpecularStrength * tmpSpecularImpact, 1);
 	outputColor = (resultAmbientImpact + resultDiffuseImpact + resultSpecularImpact) * baseColor;
 }

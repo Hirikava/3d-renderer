@@ -20,6 +20,7 @@ namespace dengine
 		float AmbientStrength;
 		float DiffuseStrength;
 		float SpecularStrength;
+		int SpecularPower;
 	};
 }
 

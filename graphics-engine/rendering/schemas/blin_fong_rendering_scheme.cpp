@@ -151,7 +151,7 @@ void dengine::BlinFongRenderingSubmiter::DispatchDrawCall(unsigned programId,
 	blinFongEnvironmentData.CameraPosition = environment.CameraPostion;
 	blinFongEnvironmentData.ProjectionMatrix = environment.ProjectionMatrix;
 	blinFongEnvironmentData.ViewMatrix = environment.ViewMatrix;
-	blinFongEnvironmentData.LightsSettings = LightsSettings{ environment.AmbientStrength, environment.DiffuseStrength, environment.SpecularStrength };
+	blinFongEnvironmentData.LightsSettings = LightsSettings{ environment.AmbientStrength, environment.DiffuseStrength, environment.SpecularStrength, environment.SpecularPower};
 
 	//load data to gpu
 	auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
