@@ -1,10 +1,6 @@
 #include <rendering/schemas/pbr_rendering_scheme.h>
-
-
 #include <rendering/schemas/blin_fong_rendering_scheme.h>
-
 #include <sstream>
-
 #include <utils/shader_load_utils.h>
 #include <glad/glad.h>
 

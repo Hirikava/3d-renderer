@@ -169,7 +169,7 @@ int dengine::GraphicsEngineApplication::RunInternal()
 	PbrRenderingSubmitter renderingSubmitter(openglSettings);
 
 	auto lightEntity = registry.create();
-	auto startLightComponent = LightComponent{ glm::vec4(10,10,10,0), glm::vec4(1.0f,1.0f,1.0f,1.0f) };
+	auto startLightComponent = LightComponent{ glm::vec4(10,10,10,0), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)};
 	registry.emplace<LightComponent>(lightEntity, startLightComponent);
 
 
@@ -206,7 +206,7 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		glfwGetWindowSize(window, &width, &height);
 		auto aspect = currentViewportSize.x / currentViewportSize.y;
 		globalEnvironment.CameraPostion = glm::vec4(camera.Position, 1.0f);
-		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 0.01f, 100.0f);
+		globalEnvironment.ProjectionMatrix = glm::perspective(glm::radians(55.0f), aspect, 0.01f, 100.0f);
 		globalEnvironment.ViewMatrix = CameraControl::GetLookAtMatrix(camera);
 
 		auto drawView = registry.view<PbrRenderingUnit, TransformComponent, Material>();
@@ -252,15 +252,9 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		ImGui::DragFloat("camera rotation speed", &cameraRotationSpeed, 0.0001f, 0, 1);
 		auto& lightComponent = registry.get<LightComponent>(lightEntity);
 		ImGui::DragFloat4("light position", glm::value_ptr(lightComponent.Position));
-		ImGui::ColorEdit4("light color", glm::value_ptr(lightComponent.Color));
+		ImGui::ColorPicker3("light color", glm::value_ptr(lightComponent.Color));
+		ImGui::DragFloat("light intensity", &lightComponent.Color.w);
 
-		ImGui::End();
-
-		ImGui::Begin("Blin-Fong settings");
-		ImGui::DragFloat("ambient strength", &globalEnvironment.AmbientStrength, 0.1);
-		ImGui::DragFloat("diffuse strength", &globalEnvironment.DiffuseStrength, 0.1);
-		ImGui::DragFloat("specular strength", &globalEnvironment.SpecularStrength, 0.1);
-		ImGui::DragInt("specular power", &globalEnvironment.SpecularPower, 1,0,256);
 		ImGui::End();
 
 		auto windowFlags = ImGuiWindowFlags_NoScrollbar;

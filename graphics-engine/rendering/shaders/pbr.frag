@@ -88,8 +88,8 @@ void main()
         vec3 lightDir = fsIn.TBN * normalize(lightInfo.Position.xyz - fsIn.fragPos);
         vec3 halfWayVL = normalize(viewDir + lightDir);
         float distance = length(lightInfo.Position.xyz - fsIn.fragPos);
-        float attenuation = 1.0;
-        vec3 radiance = lightInfo.Color.xyz * attenuation;        
+        float attenuation = 1.0 / pow(distance, 2);
+        vec3 radiance = lightInfo.Color.xyz * attenuation * lightInfo.Color.a;        
         
         // cook-torrance brdf
         float NDF = DistributionGGX(norm, halfWayVL, roughness);        
@@ -109,7 +109,7 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
     }   
 
-    vec3 ambient = vec3(0.03) * albedo;
+    vec3 ambient = vec3(0.02) * albedo;
     vec3 color = ambient + Lo;
     FragmentColor = vec4(color, 1.0);
 }
