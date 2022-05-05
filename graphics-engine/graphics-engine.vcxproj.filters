@@ -60,6 +60,7 @@
     <ClCompile Include="rendering\rendering_tmp.cpp" />
     <ClCompile Include="rendering\schemas\blin_fong_rendering_scheme.cpp" />
     <ClCompile Include="utils\shader_load_utils.cpp" />
+    <ClCompile Include="rendering\schemas\pbr_rendering_scheme.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importers\assimp_model_importer.h">
@@ -79,6 +80,7 @@
     <ClInclude Include="rendering\schemas\simple_rendering_scheme.h" />
     <ClInclude Include="utils\shader_load_utils.h" />
     <ClInclude Include="rendering\schemas\blin_fong_rendering_scheme.h" />
+    <ClInclude Include="rendering\schemas\pbr_rendering_scheme.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="rendering\shaders\blin-fong.vert" />
@@ -89,5 +91,7 @@
       <Filter>rendering\shaders</Filter>
     </None>
     <None Include="rendering\shaders\blin-fong.frag" />
+    <None Include="rendering\shaders\pbr.frag" />
+    <None Include="rendering\shaders\pbr.vert" />
   </ItemGroup>
 </Project>

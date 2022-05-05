@@ -21,7 +21,7 @@ namespace dengine
 	};
 
 
-	struct PbrInstacesData {
+	struct PbrInstancesData {
 		glm::mat4 ModelMatrix;
 	};
 
@@ -51,7 +51,7 @@ namespace dengine
 		int DiffuseTexture{ -1 };
 		int NormalTexture{ -1 };
 		int MetalnessTexture{ -1 };
-		std::pmr::vector<PbrInstacesData> InstanceDatas;
+		std::pmr::vector<PbrInstancesData> InstanceDatas;
 	};
 
 
@@ -62,9 +62,9 @@ namespace dengine
 	};
 
 
-	class BlinFongRenderingSubmiter {
+	class PbrRenderingSubmitter {
 	public:
-		explicit BlinFongRenderingSubmiter(OpenglSettings openglSettings);
+		explicit PbrRenderingSubmitter(OpenglSettings openglSettings);
 		void Submit(PbrRenderingUnit renderingUnit, Material material, glm::mat4 modelMatrix);
 		void DispatchDrawCall(unsigned programId, const GlobalEnvironment& environment) const;
 		void Clear();

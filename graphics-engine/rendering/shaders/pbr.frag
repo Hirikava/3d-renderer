@@ -12,7 +12,7 @@ in VS_OUT {
 } fsIn;
 
 out vec4 FragmentColor;
-const float PI = 3.14f;
+const float PI = 3.14159265359;
 
 struct LightInfo{
 	vec4 Position;	
@@ -88,7 +88,7 @@ void main()
         vec3 lightDir = fsIn.TBN * normalize(lightInfo.Position.xyz - fsIn.fragPos);
         vec3 halfWayVL = normalize(viewDir + lightDir);
         float distance = length(lightInfo.Position.xyz - fsIn.fragPos);
-        float attenuation = 1.0 / (distance * distance);
+        float attenuation = 1.0;
         vec3 radiance = lightInfo.Color.xyz * attenuation;        
         
         // cook-torrance brdf
@@ -98,7 +98,7 @@ void main()
         
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metallic;	  
+        kD *= (1.0 - metallic);	  
         
         vec3 numerator    = NDF * G * F;
         float denominator = 4.0 * max(dot(norm, viewDir), 0.0) * max(dot(norm, lightDir), 0.0) + 0.0001;

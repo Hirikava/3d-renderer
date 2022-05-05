@@ -17,6 +17,7 @@
 #include <rendering/camera.hpp>
 #include <rendering/global_environment.h>
 #include <rendering/schemas/blin_fong_rendering_scheme.h>
+#include <rendering/schemas/pbr_rendering_scheme.h>
 
 const char* OpenGlLoggerName = "opengl_logger";
 const char* AppLoggerName = "app_logger";
@@ -124,9 +125,9 @@ int dengine::GraphicsEngineApplication::RunInternal()
 	//make vaos
 	for (int i = 0; i < openglModel.Meshes.size(); i++)
 	{
-		auto simpleRenderinUnit = BlinFongRenderingScheme::CreateRenderingUnit(openglModel.Meshes[i], openglSettings);
+		auto simpleRenderinUnit = PbrRenderingScheme::CreateRenderingUnit(openglModel.Meshes[i], openglSettings);
 		auto entity = registry.create();
-		registry.emplace<BlinFongRenderingUnit>(entity, simpleRenderinUnit);
+		registry.emplace<PbrRenderingUnit>(entity, simpleRenderinUnit);
 		registry.emplace<TransformComponent>(entity, glm::mat4{1.0f});
 		Material material{
 			openglModel.Materils[openglModel.Meshes[i].MaterialIndex].DiffuseTextureId,
@@ -137,8 +138,8 @@ int dengine::GraphicsEngineApplication::RunInternal()
 	}
 
 	//load shader program and compile it
-	BlinFongRenderingScheme simpleRenderingScheme;
-	auto program = simpleRenderingScheme.LoadShaderProgram();
+	PbrRenderingScheme renderingScheme;
+	auto program = renderingScheme.LoadShaderProgram();
 
 
 	glEnable(GL_DEPTH_TEST);
@@ -165,16 +166,11 @@ int dengine::GraphicsEngineApplication::RunInternal()
 
 	//set up global environment
 	GlobalEnvironment globalEnvironment;
-	BlinFongRenderingSubmiter renderingSubmitter(openglSettings);
+	PbrRenderingSubmitter renderingSubmitter(openglSettings);
 
 	auto lightEntity = registry.create();
 	auto startLightComponent = LightComponent{ glm::vec4(10,10,10,0), glm::vec4(1.0f,1.0f,1.0f,1.0f) };
 	registry.emplace<LightComponent>(lightEntity, startLightComponent);
-
-	globalEnvironment.DiffuseStrength = 1.0f;
-	globalEnvironment.SpecularStrength = 5.0f;
-	globalEnvironment.AmbientStrength = 0.1f;
-	globalEnvironment.SpecularPower = 32;
 
 
 	while (!glfwWindowShouldClose(window))
@@ -213,10 +209,10 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 0.01f, 100.0f);
 		globalEnvironment.ViewMatrix = CameraControl::GetLookAtMatrix(camera);
 
-		auto drawView = registry.view<BlinFongRenderingUnit, TransformComponent, Material>();
+		auto drawView = registry.view<PbrRenderingUnit, TransformComponent, Material>();
 		for (auto entity : drawView)
 		{
-			auto renderingUnit = drawView.get<BlinFongRenderingUnit>(entity);
+			auto renderingUnit = drawView.get<PbrRenderingUnit>(entity);
 			auto material = drawView.get<Material>(entity);
 			renderingSubmitter.Submit(renderingUnit, material, glm::mat4(1.0f));
 		}

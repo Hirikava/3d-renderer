@@ -179,6 +179,7 @@
     <ClCompile Include="rendering\global_environment.h" />
     <ClCompile Include="rendering\rendering_tmp.cpp" />
     <ClCompile Include="rendering\schemas\blin_fong_rendering_scheme.cpp" />
+    <ClCompile Include="rendering\schemas\pbr_rendering_scheme.cpp" />
     <ClCompile Include="rendering\schemas\simple_rendering_scheme.cpp" />
     <ClCompile Include="utils\shader_load_utils.cpp" />
   </ItemGroup>
@@ -188,12 +189,15 @@
     <ClInclude Include="importers\model_importer.h" />
     <ClInclude Include="rendering\camera.hpp" />
     <ClInclude Include="rendering\schemas\blin_fong_rendering_scheme.h" />
+    <ClInclude Include="rendering\schemas\pbr_rendering_scheme.h" />
     <ClInclude Include="rendering\schemas\rendering_scheme.h" />
     <ClInclude Include="rendering\rendering_tmp.h" />
     <ClInclude Include="rendering\schemas\simple_rendering_scheme.h" />
     <ClInclude Include="utils\shader_load_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="rendering\shaders\pbr.frag" />
+    <None Include="rendering\shaders\pbr.vert" />
     <None Include="rendering\shaders\simple.frag">
       <FileType>Document</FileType>
     </None>

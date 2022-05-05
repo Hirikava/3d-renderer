@@ -17,29 +17,18 @@ constexpr unsigned int AttributeTangentLocation = 3;
 constexpr unsigned int AttributeModelMatrixBaseLocation = 4;
 //UNIFORM BUFFER BINDINGS
 constexpr unsigned int UboEnvironmentsBinding = 0;
-constexpr unsigned int UboLightsBinding = 1;
 //SHADER STORAGE BUFFER BINDINGS
 constexpr unsigned int SsboLightsInfosBinding = 0;
 
 
 unsigned dengine::PbrRenderingScheme::LoadShaderProgram()
 {
-	auto program = uploadAndCompileShaders("shaders/blin-fong.vert", "shaders/blin-fong.frag");
+	auto program = uploadAndCompileShaders("shaders/pbr.vert", "shaders/pbr.frag");
 	glUniformBlockBinding(program, 0, UboEnvironmentsBinding);
-	glUniformBlockBinding(program, 1, UboLightsBinding);
 	glShaderStorageBlockBinding(program, 0, SsboLightsInfosBinding);
 	return program;
 }
 
-std::pair<int, int> calculateSizeAndOffset(const dengine::OpenglSettings openglSettings)
-{
-	auto envSize = offsetof(dengine::PbrEnvironmentData, LightsSettings);
-	auto lightSettingSize = sizeof(dengine::LightsSettings);
-	auto envAlignCount = (envSize / openglSettings.uniformAlignment);
-	envAlignCount += sizeof(dengine::PbrEnvironmentData) % openglSettings.uniformAlignment == 0 ? 0 : 1;
-	return { envAlignCount * openglSettings.uniformAlignment + lightSettingSize,
-		envAlignCount * openglSettings.uniformAlignment };
-}
 
 dengine::PbrRenderingUnit dengine::PbrRenderingScheme::CreateRenderingUnit(const BufferedMesh& mesh, OpenglSettings openglSettings)
 {
@@ -53,10 +42,9 @@ dengine::PbrRenderingUnit dengine::PbrRenderingScheme::CreateRenderingUnit(const
 	unsigned int lightsBuffer = buffers[2];
 
 
-	auto sizeAndOffset = calculateSizeAndOffset(openglSettings);
 	//InitializeBuffers
-	glNamedBufferData(instanceBuffer, sizeof(PbrInstanceData) * 16, nullptr, GL_STREAM_DRAW);
-	glNamedBufferData(environmentBuffer, openglSettings.uniformAlignment + sizeof(LightsSettings), nullptr, GL_STREAM_DRAW);
+	glNamedBufferData(instanceBuffer, sizeof(PbrInstancesData) * 16, nullptr, GL_STREAM_DRAW);
+	glNamedBufferData(environmentBuffer, sizeof(PbrEnvironmentData), nullptr, GL_STREAM_DRAW);
 	glNamedBufferData(lightsBuffer, sizeof(PbrLightsInfo), nullptr, GL_STREAM_DRAW);
 
 	glGenVertexArrays(1, &vao);
@@ -102,7 +90,6 @@ dengine::PbrRenderingUnit dengine::PbrRenderingScheme::CreateRenderingUnit(const
 
 
 	glBindBufferRange(GL_UNIFORM_BUFFER, UboEnvironmentsBinding, environmentBuffer, 0, openglSettings.uniformAlignment);
-	glBindBufferRange(GL_UNIFORM_BUFFER, UboLightsBinding, environmentBuffer, openglSettings.uniformAlignment, sizeof(LightsSettings));
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, lightsBuffer);
 	glBindVertexArray(0);
 
@@ -113,7 +100,7 @@ dengine::PbrRenderingUnit dengine::PbrRenderingScheme::CreateRenderingUnit(const
 dengine::PbrRenderingSubmitter::PbrRenderingSubmitter(OpenglSettings openglSettings) : openglSettings(openglSettings) {}
 
 
-std::pmr::string getBlinFongCacheId(unsigned int vaoId, const dengine::Material& material)
+std::pmr::string getPbrCacheId(unsigned int vaoId, const dengine::Material& material)
 {
 	std::stringstream ss;
 	ss << "vao:{" << vaoId << "}" << "-" << "diffuseTexture:{"
@@ -127,7 +114,7 @@ std::pmr::string getBlinFongCacheId(unsigned int vaoId, const dengine::Material&
 void dengine::PbrRenderingSubmitter::Submit(PbrRenderingUnit renderingUnit, Material material,
 	glm::mat4 modelMatrix)
 {
-	auto cacheId = getBlinFongCacheId(renderingUnit.Vao, material);
+	auto cacheId = getPbrCacheId(renderingUnit.Vao, material);
 	auto findIter = instancedToDraw.find(cacheId);
 	if (findIter == instancedToDraw.end())
 	{
@@ -138,7 +125,7 @@ void dengine::PbrRenderingSubmitter::Submit(PbrRenderingUnit renderingUnit, Mate
 		instancedToDraw[cacheId] = { renderingUnit, submitInfo };
 	}
 	auto& drawInstance = instancedToDraw[cacheId];
-	drawInstance.second.InstanceDatas.push_back(PbrInstanceData{ modelMatrix });
+	drawInstance.second.InstanceDatas.push_back(PbrInstancesData{ modelMatrix });
 }
 
 
@@ -152,25 +139,20 @@ void dengine::PbrRenderingSubmitter::DispatchDrawCall(unsigned programId,
 	memcpy(lightsInfo.LightsInfos, &environment.Lights[0],
 		environment.Lights.size() * sizeof(LightInfo));
 
-	PbrEnvironmentData blinFongEnvironmentData;
-	blinFongEnvironmentData.CameraPosition = environment.CameraPostion;
-	blinFongEnvironmentData.ProjectionMatrix = environment.ProjectionMatrix;
-	blinFongEnvironmentData.ViewMatrix = environment.ViewMatrix;
-	blinFongEnvironmentData.LightsSettings = LightsSettings{ environment.AmbientStrength, environment.DiffuseStrength, environment.SpecularStrength, environment.SpecularPower };
+	PbrEnvironmentData environmentData;
+	environmentData.CameraPosition = environment.CameraPostion;
+	environmentData.ProjectionMatrix = environment.ProjectionMatrix;
+	environmentData.ViewMatrix = environment.ViewMatrix;
 
 	//load data to gpu
 	auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-	auto offsetAndAlignment = calculateSizeAndOffset(openglSettings);
 	for (auto& index : instancedToDraw)
 	{
 		auto& submitInfo = index.second.second;
 		auto& renderingUnit = index.second.first;
-
-		LightsSettings lightsSettings = blinFongEnvironmentData.LightsSettings;
-		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, offsetof(PbrEnvironmentData, LightsSettings), &blinFongEnvironmentData);
-		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, openglSettings.uniformAlignment, sizeof(LightsSettings), &lightsSettings);
+		glNamedBufferSubData(renderingUnit.EnvironmentBuffer, 0, sizeof(PbrEnvironmentData), &environmentData);
 		glNamedBufferSubData(renderingUnit.InstaciesBuffer, 0,
-			sizeof(PbrInstanceData) * submitInfo.InstanceDatas.size(),
+			sizeof(PbrInstancesData) * submitInfo.InstanceDatas.size(),
 			&submitInfo.InstanceDatas[0]); //Update model matricies
 		glNamedBufferSubData(renderingUnit.LightsBuffer, 0, sizeof(PbrLightsInfo), &lightsInfo);//Update lights information
 	}
