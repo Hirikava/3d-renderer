@@ -210,7 +210,7 @@ int dengine::GraphicsEngineApplication::RunInternal()
 		glfwGetWindowSize(window, &width, &height);
 		auto aspect = currentViewportSize.x / currentViewportSize.y;
 		globalEnvironment.CameraPostion = glm::vec4(camera.Position, 1.0f);
-		globalEnvironment.ProjectionMatrix = glm::perspective(glm::degrees(45.0f), aspect, 0.01f, 100.0f);
+		globalEnvironment.ProjectionMatrix = glm::perspective(glm::radians(45.0f), aspect, 0.01f, 100.0f);
 		globalEnvironment.ViewMatrix = CameraControl::GetLookAtMatrix(camera);
 
 		auto drawView = registry.view<BlinFongRenderingUnit, TransformComponent, Material>();
