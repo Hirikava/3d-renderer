@@ -25,7 +25,7 @@ std::pmr::vector<dengine::LoadedMaterial> dengine::loadMaterialsToGpu(const Mode
 		{
 			auto& textureToLoad = model.Textures[material.DiffuseTextureIndex];
 			glCreateTextures(GL_TEXTURE_2D, 1, &diffuseTexture);
-			glTextureStorage2D(diffuseTexture, 1, GL_RGBA8, textureToLoad.Width, textureToLoad.Height);
+			glTextureStorage2D(diffuseTexture, 4, GL_RGBA8, textureToLoad.Width, textureToLoad.Height);
 
 			auto textureFormat = GL_RGBA;
 			glTextureSubImage2D(diffuseTexture, 0, 0, 0, textureToLoad.Width, textureToLoad.Height, textureFormat,
@@ -35,6 +35,7 @@ std::pmr::vector<dengine::LoadedMaterial> dengine::loadMaterialsToGpu(const Mode
 			glTextureParameteri(diffuseTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTextureParameteri(diffuseTexture, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTextureParameteri(diffuseTexture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glGenerateTextureMipmap(diffuseTexture);
 		}
 		else
 			diffuseTexture = index->second;
@@ -51,8 +52,8 @@ std::pmr::vector<dengine::LoadedMaterial> dengine::loadMaterialsToGpu(const Mode
 			glTextureSubImage2D(normalTexture, 0, 0, 0, textureToLoad.Width, textureToLoad.Height, textureFormat,
 				GL_UNSIGNED_BYTE, &textureToLoad.Data[0]);
 
-			glTextureParameteri(normalTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTextureParameteri(normalTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTextureParameteri(normalTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(normalTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTextureParameteri(normalTexture, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTextureParameteri(normalTexture, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		}
@@ -71,8 +72,8 @@ std::pmr::vector<dengine::LoadedMaterial> dengine::loadMaterialsToGpu(const Mode
 			glTextureSubImage2D(metalnessTexture, 0, 0, 0, textureToLoad.Width, textureToLoad.Height, textureFormat,
 				GL_UNSIGNED_BYTE, &textureToLoad.Data[0]);
 
-			glTextureParameteri(metalnessTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTextureParameteri(metalnessTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTextureParameteri(metalnessTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(metalnessTexture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTextureParameteri(metalnessTexture, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTextureParameteri(metalnessTexture, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		}

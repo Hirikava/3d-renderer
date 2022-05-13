@@ -23,25 +23,6 @@ const char* OpenGlLoggerName = "opengl_logger";
 const char* AppLoggerName = "app_logger";
 
 
-int dengine::IApplication::Run()
-{
-	try
-	{
-		if (!Initialize())
-		{
-			Terminate();
-			return -1;
-		}
-		return this->RunInternal();
-	}
-	catch (std::exception exception)
-	{
-		Terminate();
-	}
-	Terminate();
-	return -1;
-}
-
 
 bool dengine::GraphicsEngineApplication::Terminate()
 {
@@ -109,10 +90,10 @@ void UpdateRotateCamera(dengine::Camera& cam, float xPitch, float yYaw)
 }
 
 
-int dengine::GraphicsEngineApplication::RunInternal()
+int dengine::GraphicsEngineApplication::RunInternal(GraphicsEngineRunArguments& runArguments)
 {
 	//load models
-	auto model = modelImporter.Import("C:\\Users\\daas\\Desktop\\models\\blossom_katana\\scene.gltf");
+	auto model = modelImporter.Import(runArguments.pathToModel);
 	auto openglModel = loadModelToGpu(model);
 	model.Materials.clear();
 	model.Meshes.clear();

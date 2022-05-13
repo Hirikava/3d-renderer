@@ -18,12 +18,9 @@ constexpr unsigned int ImportFlags = aiProcess_CalcTangentSpace |
 
 
 
-dengine::AssimpModelImporter::AssimpModelImporter(const std::shared_ptr<spdlog::logger> log) : log(log)
-{
-}
-
 dengine::Model dengine::AssimpModelImporter::Import(std::pmr::string path)
 {
+	std::shared_ptr<spdlog::logger> log = spdlog::get("app_logger");
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path.c_str(), ImportFlags);
 	if (scene == nullptr)

@@ -22,6 +22,15 @@
     <Filter Include="ui-components">
       <UniqueIdentifier>{09f1604b-58dd-4975-8e2b-801bdf9929ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rendering\schemas">
+      <UniqueIdentifier>{9e75272e-1613-4061-b740-a9b5658de60a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rendering\scene-components">
+      <UniqueIdentifier>{90888e16-c0a6-4299-8d6b-935a22adc97b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application">
+      <UniqueIdentifier>{80510b81-2585-42b2-9cee-227add803df7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(SolutionDir)deps\glad\$(Configuration)\src\glad.c">
@@ -52,15 +61,27 @@
       <Filter>importing</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="rendering\schemas\blin_fong_rendering_scheme.cpp">
+      <Filter>rendering\schemas</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\schemas\pbr_rendering_scheme.cpp">
+      <Filter>rendering\schemas</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\schemas\simple_rendering_scheme.cpp">
+      <Filter>rendering\schemas</Filter>
+    </ClCompile>
     <ClCompile Include="rendering\global_environment.h">
+      <Filter>rendering\schemas</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\rendering_tmp.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
-    <ClCompile Include="application\graphics_engine_application.cpp" />
-    <ClCompile Include="rendering\schemas\simple_rendering_scheme.cpp" />
-    <ClCompile Include="rendering\rendering_tmp.cpp" />
-    <ClCompile Include="rendering\schemas\blin_fong_rendering_scheme.cpp" />
-    <ClCompile Include="utils\shader_load_utils.cpp" />
-    <ClCompile Include="rendering\schemas\pbr_rendering_scheme.cpp" />
+    <ClCompile Include="utils\shader_load_utils.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="application\graphics_engine_application.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importers\assimp_model_importer.h">
@@ -69,29 +90,49 @@
     <ClInclude Include="importers\model_importer.h">
       <Filter>importing</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\rendering_tmp.h">
-      <Filter>rendering</Filter>
+    <ClInclude Include="rendering\schemas\blin_fong_rendering_scheme.h">
+      <Filter>rendering\schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\schemas\pbr_rendering_scheme.h">
+      <Filter>rendering\schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\schemas\simple_rendering_scheme.h">
+      <Filter>rendering\schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\schemas\rendering_scheme.h">
+      <Filter>rendering\schemas</Filter>
     </ClInclude>
     <ClInclude Include="rendering\camera.hpp">
+      <Filter>rendering\scene-components</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\rendering_tmp.h">
+      <Filter>rendering\schemas</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\shader_load_utils.h">
       <Filter>rendering</Filter>
     </ClInclude>
-    <ClInclude Include="application\graphics_engine_application.h" />
-    <ClInclude Include="rendering\schemas\rendering_scheme.h" />
-    <ClInclude Include="rendering\schemas\simple_rendering_scheme.h" />
-    <ClInclude Include="utils\shader_load_utils.h" />
-    <ClInclude Include="rendering\schemas\blin_fong_rendering_scheme.h" />
-    <ClInclude Include="rendering\schemas\pbr_rendering_scheme.h" />
+    <ClInclude Include="application\graphics_engine_application.h">
+      <Filter>application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="rendering\shaders\blin-fong.vert" />
     <None Include="rendering\shaders\simple.frag">
       <Filter>rendering\shaders</Filter>
     </None>
     <None Include="rendering\shaders\simple.vert">
       <Filter>rendering\shaders</Filter>
     </None>
-    <None Include="rendering\shaders\blin-fong.frag" />
-    <None Include="rendering\shaders\pbr.frag" />
-    <None Include="rendering\shaders\pbr.vert" />
+    <None Include="rendering\shaders\pbr.frag">
+      <Filter>rendering\shaders</Filter>
+    </None>
+    <None Include="rendering\shaders\pbr.vert">
+      <Filter>rendering\shaders</Filter>
+    </None>
+    <None Include="rendering\shaders\blin-fong.frag">
+      <Filter>rendering\shaders</Filter>
+    </None>
+    <None Include="rendering\shaders\blin-fong.vert">
+      <Filter>rendering\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
