@@ -138,9 +138,9 @@ int dengine::GraphicsEngineApplication::RunInternal(GraphicsEngineRunArguments& 
 	GLenum drawBuffs[1] = {GL_COLOR_ATTACHMENT0};
 	glNamedFramebufferDrawBuffers(fbo, 1, drawBuffs);
 
-	Camera camera{glm::vec3(10.0f, 10.0f, 0.0f), glm::vec3(-1, -1, 0), glm::vec3(0, 1, 0)};
+	Camera camera{glm::vec3(-2.967f, 2.192f, 1.149f), glm::vec3(0.580f, -0.210f, 0.785f), glm::vec3(0, 1, 0)};
 
-	float color[3] = {0, 0, 0};
+	float color[3] = {33.0f/255.0f, 33.0f / 255.0f, 33.0f / 255.0f};
 	float time = glfwGetTime();
 	ImVec2 currentViewportSize(1920, 1080);
 	ImVec2 tempViewPortSize(1920, 1080);
@@ -150,7 +150,7 @@ int dengine::GraphicsEngineApplication::RunInternal(GraphicsEngineRunArguments& 
 	PbrRenderingSubmitter renderingSubmitter(openglSettings);
 
 	auto lightEntity = registry.create();
-	auto startLightComponent = LightComponent{ glm::vec4(10,10,10,0), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)};
+	auto startLightComponent = LightComponent{ glm::vec4(5,3,1,0), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)};
 	registry.emplace<LightComponent>(lightEntity, startLightComponent);
 
 
@@ -231,6 +231,8 @@ int dengine::GraphicsEngineApplication::RunInternal(GraphicsEngineRunArguments& 
 		ImGui::ColorPicker3("background color", color);
 		ImGui::DragFloat("camera move speed", &cameraSpeed, 1.0f, 0, 50);
 		ImGui::DragFloat("camera rotation speed", &cameraRotationSpeed, 0.0001f, 0, 1);
+		ImGui::DragFloat3("camera position", reinterpret_cast<float*>(&camera.Position), 0.0001f, 0, 1);
+		ImGui::DragFloat3("camera direction", reinterpret_cast<float*>(&camera.Diraction), 0.0001f, 0, 1);
 		auto& lightComponent = registry.get<LightComponent>(lightEntity);
 		ImGui::DragFloat4("light position", glm::value_ptr(lightComponent.Position));
 		ImGui::ColorPicker3("light color", glm::value_ptr(lightComponent.Color));
